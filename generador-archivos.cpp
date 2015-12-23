@@ -1,5 +1,5 @@
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -7,12 +7,31 @@
 using namespace std;
 
 void usage() {
-    cout << "Usage: generador-archivos n proporcion" << endl;
+    cerr << "Usage: generador-archivos n proporcion" << endl;
+    exit(1);
 }
 
 void error(const string& msg) {
     cerr << msg << endl;
     exit(1);
+}
+
+void parsea_parametros(char* i_n, char* i_proporcion, int& n, double& proporcion) {
+    try { n = stoi(i_n); }
+    catch (const exception& ia) {
+        error("El primer argumento tiene que ser un natural");
+    }
+
+    try { proporcion = stod(i_proporcion); }
+    catch (const exception& ia) {
+        error("El segundo argumento tiene que ser un real entre 0 y 1");
+    }
+
+    if (n < 0)
+        error("La n tiene que ser positiva");
+
+    if (proporcion > 1.0 or proporcion < 0)
+        error("La proporcion tiene que estar entre 0 y 1");
 }
 
 void crear_arxiu1(int n, vector<int>& diccionario) {
@@ -51,23 +70,8 @@ void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
 int main(int argc, char* argv[]) {
     if (argc < 3) usage();
 
-    int n;
-    try { n = stoi(argv[1]); }
-    catch (const exception& ia) {
-        error("El primer argumento tiene que ser un natural");
-    }
-
-    double proporcion;
-    try { proporcion = stod(argv[2]); }
-    catch (const exception& ia) {
-        error("El segundo argumento tiene que ser un real entre 0 y 1");
-    }
-
-    if (n < 0)
-        error("La n tiene que ser positiva");
-
-    if (proporcion > 1.0 or proporcion < 0)
-        error("La proporcion tiene que estar entre 0 y 1");
+    int n; double proporcion;
+    parsea_parametros(argv[1], argv[2], n, proporcion);
 
     srand(time(NULL));
 
