@@ -4,7 +4,7 @@ project(EvalHash)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES
-    generador-arxius.cpp
+    generador-archivos.cpp
     )
 
 add_executable(EvalHash ${SOURCE_FILES})
