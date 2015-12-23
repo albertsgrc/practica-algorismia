@@ -7,6 +7,7 @@
 using namespace std;
 
 vector<int> dicc;
+
 void makeArxiu1(int n){
     dicc = vector<int>();
     ofstream diccionari;
@@ -33,6 +34,7 @@ void makeArxiu2(int n,double percentatge){
     for(int i=0;i<2*n;++i) file<< text[i]<<endl;
     file.close();
 }
+
 int main(){
     int n;
     cout<< "Enter size of the dictionary: ";
@@ -40,7 +42,7 @@ int main(){
     cout<<endl;
     makeArxiu1(n);
     double percentatge;
-    cout<< "Enter porpotion";
+    cout<< "Enter porpotion: ";
     cin>>percentatge;
     cout<<endl;
     makeArxiu2(n,percentatge);
