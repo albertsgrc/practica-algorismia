@@ -33,7 +33,7 @@ void lee_entrada(char* path_diccionario, char* path_texto,
 
     int x;
     while (fich_diccionario >> x) diccionario.push_back(x);
-    while (fich_texto >> x)       texto.push_back(x);
+    while (fich_texto       >> x) texto.push_back(x);
 }
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {

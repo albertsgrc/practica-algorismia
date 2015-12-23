@@ -16,6 +16,10 @@ void error(const string& msg) {
     exit(1);
 }
 
+int randint() {
+    return rand()&1 ? rand() : -rand();
+}
+
 void parsea_parametros(char* i_n, char* i_proporcion, int& n, double& proporcion) {
     try { n = stoi(i_n); }
     catch (const exception& ia) {
@@ -41,7 +45,7 @@ void crear_arxiu1(int n, vector<int>& diccionario) {
     arxiu1.open("arxiu1");
 
     for (int& x : diccionario) {
-        x = rand();
+        x = randint();
         arxiu1 << x << endl;
     }
 
@@ -52,7 +56,7 @@ void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
     int repetidos = n*proporcion/100;
     vector<int> texto(2*n);
 
-    for (int&x : texto) x = rand();
+    for (int&x : texto) x = randint();
 
     for (int i = 0; i < repetidos; ++i) {
         int indice_arxiu1 = rand()%n;
