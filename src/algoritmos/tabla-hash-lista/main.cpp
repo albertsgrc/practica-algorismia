@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "../io.hpp"
-#include "../cronometro.hpp"
+#include "io.hpp"
+#include "cronometro.hpp"
 #include "hash_set.hpp"
 using namespace std;
 

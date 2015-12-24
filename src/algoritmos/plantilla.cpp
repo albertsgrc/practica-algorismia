@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "../io.hpp"
-#include "../cronometro.hpp"
+#include "io.hpp"
+#include "cronometro.hpp"
 using namespace std;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
