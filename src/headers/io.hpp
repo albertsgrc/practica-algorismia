@@ -42,12 +42,12 @@ void lee_entrada(char* path_diccionario, char* path_texto,
     fich_diccionario.open(path_diccionario);
 
     if (not fich_diccionario.is_open()) 
-        error("Path del fichero del diccionario inválido");
+        error("El fichero del diccionario no existe");
 
     fich_texto.open(path_texto);
 
     if (not fich_texto.is_open())
-        error("Path del fichero del texto inválido");
+        error("El fichero del texto no existe");
 
     int x;
     while (fich_diccionario >> x) diccionario.push_back(x);

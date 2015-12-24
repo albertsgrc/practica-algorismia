@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# Para que acabe si peta
+set -e
+
+ALGORITMO=$1
+#N=$2
+#PROPORCION=$3
+
+CAMINO=./algoritmos/$ALGORITMO
+
+# Comprobamos si el algoritmo existe 
+if [ ! -f $CAMINO/main.cc ]; then
+    echo "El algoritmo no existe o no tiene archivo main.cc"
+    echo "Lista de algoritmos:"
+    cd algoritmos
+    for folder in *; do
+        if [ -f $folder/main.cc ]; then
+            echo \* $folder
+        fi
+    done
+    exit
+fi
+
+# Compilamos el programa de generacion de ficheros
+#make generador-archivos
+
+# Ejecutamos el generador
+#./generador-archivos $N $PROPORCION
+
+# Compilamos el algoritmo
+make algoritmos/$ALGORITMO/main
+make algoritmos/$ALGORITMO/main-stats
+
+# Ejecutamos el algoritmo para medir el tiempo
+$CAMINO/main archivos/arxiu1 archivos/arxiu2 $CAMINO/tiempo.out > $CAMINO/output.out
+
+# Ejecutamos el algoritmo para medir estadísticas
+$CAMINO/main-stats archivos/arxiu1 archivos/arxiu2 $CAMINO/estadisticas.json > $CAMINO/output-stats.out
+
+# Comprobamos que ha dado un resultado correcto
+
+make algoritmo-seguro
+
+./algoritmo-seguro archivos/arxiu1 archivos/arxiu2 > tmp.txt
+
+if ! cmp tmp.txt $CAMINO/output.out >/dev/null 2>&1; then
+    echo "El algoritmo no ha dado un resultado correcto"
+    exit
+fi
+
+if ! cmp tmp.txt $CAMINO/output-stats.out >/dev/null 2>&1; then
+    echo "El algoritmo con estadísticas no ha dado un resultado correcto"
+    exit
+fi
+
+rm -f tmp.txt
+
+# Y escribimos los resultados
+
+echo "Resultado correcto"
+echo -n "Tiempo ejecución algoritmo: "
+cat $CAMINO/tiempo.out
+echo " microsegundos"
+
+echo "Estadísticas en formato JSON:"
+cat $CAMINO/estadisticas.json
+echo ""

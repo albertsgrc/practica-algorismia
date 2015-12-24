@@ -36,8 +36,8 @@ int main(int argc, char* argv[]) {
     estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
     writeJson(
         {
-            {"tamaño_diccionario", diccionario.size()},
-            {"tamaño_texto", texto.size()},
+            {"tamano_diccionario", diccionario.size()},
+            {"tamano_texto", texto.size()},
             {
                 "total_comparaciones_busqueda_fracaso", 
                 diccionario_hash.total_comparaciones_busqueda_fracaso

@@ -1,28 +1,30 @@
-FLAGS = -std=c++1y -Wall -Wextra -Werror -Wno-uninitialized -Wno-sign-compare -Wshadow -O2 -I./headers
+FLAGS = -std=c++1y -Wall -Wextra -Werror -Wno-uninitialized -Wno-sign-compare -Wshadow -O3 -I./headers
 
-all: generador busqueda-binaria filtro-bloom tabla-hash-cuckoo tabla-hash-lista trie
+ALGORITMOS = busqueda-binaria filtro-bloom tabla-hash-cuckoo tabla-hash-lista trie
+OTROS      = generador-archivos algoritmo-seguro
 
-generador: generador_archivos.cpp
-	g++ $(FLAGS) $< -o generador_archivos.exe
+all: $(OTROS) algoritmos/$(ALGORITMOS)/main algoritmos/$(ALGORITMOS)/main-stats
 
-busqueda-binaria:  algoritmos/busqueda-binaria/main.cpp
-	g++ $(FLAGS) $< -o algoritmos/$@/main.exe
+generador-archivos: generador-archivos.cc
+	g++ $(FLAGS) $< -o $@
 
-filtro-bloom: algoritmos/filtro-bloom/main.cpp
-	g++ $(FLAGS) $< -o algoritmos/$@/main.exe
+algoritmo-seguro: algoritmo-seguro.cc
+	g++ $(FLAGS) $< -o $@
 
-tabla-hash-cuckoo: algoritmos/tabla-hash-cuckoo/main.cpp
-	g++ $(FLAGS) $< -o algoritmos/$@/main.exe
+algoritmos/%/main: algoritmos/%/main.cc
+	g++ $(FLAGS) $< -o $@
 
-tabla-hash-lista: algoritmos/tabla-hash-lista/main.cpp
-	g++ $(FLAGS) $< -o algoritmos/$@/main.exe
+algoritmos/%/main-stats: algoritmos/%/main.cc
+	g++ $(FLAGS) -D_STATS_ $< -o $@
 
-trie: algoritmos/trie/main.cpp
-	g++ $(FLAGS) $< -o algoritmos/$@/main.exe
-
-clean:
-	find . -name "*.exe" -type f -delete
+clean: 
+	rm -f algoritmos/$(ALGORITMOS)/main
+	rm -f algoritmos/$(ALGORITMOS)/main-stats
+	rm -f $(OTROS)
 
 ultraclean:
-	find . \( -name "*.exe" -type f -o  -name "*.out" -type f -o -name "*.json" -type f \) -delete
+	find algoritmos \( -name "main" -type f -o -name "main-stats" -type f \) -delete
+	rm -f $(OTROS)
+
+	find . \( -name "*.out" -type f -o -name "*.json" -type f \) -delete
 	rm -f archivos/*
