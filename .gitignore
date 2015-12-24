@@ -32,6 +32,10 @@
 arxiu1
 arxiu2
 
+# Sortides
+*.out
+*.json
+
 #CLion
 .idea/
 

@@ -1,3 +1,0 @@
-* Podem fer servir l'algorisme de radixsort per ordenar en el mètode de cerca binària?
-* Podem fer servir el sort() de la llibreria algorithm de c++?
-* El diccionari pot contenir repetits?

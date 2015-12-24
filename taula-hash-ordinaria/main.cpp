@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
         estadisticas);
     #else
     ofstream tiempo;
-    tiempo.open(argc > 3 ? argv[3] : "tiempo.txt");
+    tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
     tiempo << c.elapsed();
     tiempo.close();
     #endif

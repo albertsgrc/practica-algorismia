@@ -1,7 +1,0 @@
-{
-    "tamaño_diccionario": "1000000",
-    "tamaño_texto": "2000000",
-    "total_comparaciones_busqueda_fracaso": "370805",
-    "total_comparaciones_busqueda_exito": "495564",
-    "total_comparaciones_creacion": "119539"
-}
