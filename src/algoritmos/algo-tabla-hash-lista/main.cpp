@@ -2,7 +2,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "../helper.hpp"
+#include "../io.hpp"
+#include "../cronometro.hpp"
 #include "hash_set.hpp"
 #include <functional>
 using namespace std;
@@ -50,6 +51,10 @@ int main(int argc, char* argv[]) {
                 "total_comparaciones_creacion", 
                 diccionario_hash.total_comparaciones_creacion
             },
+            {
+                "colisiones",
+                diccionario_hash.colisiones()
+            }
         }
         ,
         estadisticas);

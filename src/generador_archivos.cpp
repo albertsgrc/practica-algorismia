@@ -57,7 +57,7 @@ void crear_diccionario(int n, vector<int>& diccionario) {
 }
 
 void crear_texto(int n, double proporcion, const vector<int>& diccionario, int num) {
-    int repetidos = n*proporcion/100;
+    int repetidos = n*proporcion;
     vector<int> texto(2*n);
 
     for (int&x : texto) x = randint();
@@ -87,6 +87,6 @@ int main(int argc, char* argv[]) {
     crear_diccionario(n, diccionario);
 
     int numero_textos = argc > 3 ? atoi(argv[3]) : 1;
-    for (int i = 1; i < numero_textos; ++i)
-        crear_texto(n, proporcion, diccionario, i + 1);
+    for (int i = 0; i < numero_textos; ++i)
+        crear_texto(n, proporcion, diccionario, i + 2);
 }
