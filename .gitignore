@@ -27,19 +27,17 @@
 *.exe
 *.out
 *.app
-main
-main-stats
+algoritmos/*
+!algoritmos/*.cc
 generador-archivos
 algoritmo-seguro
 
 
 # Arxius
-arxiu1
-arxiu2
+archivos/*
 
 # Sortides
-*.out
-*.json
+salidas/*
 
 #CLion
 .idea/
