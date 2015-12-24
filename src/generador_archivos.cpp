@@ -7,7 +7,11 @@
 using namespace std;
 
 void usage(string prog) {
-    cerr << "Usage: " + prog + " n proporcion" << endl;
+    cerr << "Usage: "
+         << prog 
+         << " n proporcion [numero_textos]" 
+         << endl;
+
     exit(1);
 }
 
@@ -38,11 +42,11 @@ void parsea_parametros(char* i_n, char* i_proporcion, int& n, double& proporcion
         error("La proporcion tiene que estar entre 0 y 1");
 }
 
-void crear_arxiu1(int n, vector<int>& diccionario) {
+void crear_diccionario(int n, vector<int>& diccionario) {
     diccionario = vector<int>(n);
 
     ofstream arxiu1;
-    arxiu1.open("arxiu1");
+    arxiu1.open("archivos/arxiu1");
 
     for (int& x : diccionario) {
         x = randint();
@@ -52,8 +56,8 @@ void crear_arxiu1(int n, vector<int>& diccionario) {
     arxiu1.close();
 }
 
-void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
-    int repetidos = n*proporcion;
+void crear_texto(int n, double proporcion, const vector<int>& diccionario, int num) {
+    int repetidos = n*proporcion/100;
     vector<int> texto(2*n);
 
     for (int&x : texto) x = randint();
@@ -65,7 +69,7 @@ void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
     }
 
     ofstream arxiu2;
-    arxiu2.open("arxiu2");
+    arxiu2.open("archivos/arxiu" + to_string(num));
     for (int x : texto) arxiu2 << x << endl;
 
     arxiu2.close();
@@ -80,6 +84,9 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
 
     vector<int> diccionario;
-    crear_arxiu1(n, diccionario);
-    crear_arxiu2(n, proporcion, diccionario);
+    crear_diccionario(n, diccionario);
+
+    int numero_textos = argc > 3 ? atoi(argv[3]) : 1;
+    for (int i = 1; i < numero_textos; ++i)
+        crear_texto(n, proporcion, diccionario, i + 1);
 }
