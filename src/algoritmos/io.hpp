@@ -25,7 +25,7 @@ void writeJson(vector<pair<string, int>> data, ostream& os) {
     for (int i = 0; i < data.size(); ++i) {
         if (i > 0) os << ",";
         os << endl 
-           << "    \"" << data[i].first << "\": \"" << data[i].second << "\""; 
+           << "    \"" << data[i].first << "\": " << data[i].second; 
     }
     os << endl << "}";
 }
