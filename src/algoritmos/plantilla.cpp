@@ -4,16 +4,14 @@
 #include <fstream>
 #include "../io.hpp"
 #include "../cronometro.hpp"
-#include "hash_set.hpp"
 using namespace std;
 
-hash_set<int> diccionario_hash;
-
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
-    diccionario_hash = hash_set<int>(diccionario);
-
-    for (int i = 0; i < texto.size(); ++i) 
-        resultado[i] = diccionario_hash.contiene(texto[i]);
+// El algoritmo deberá calcular las estadísticas de ejecución sólo si se
+// ha compilado el programa en versión estadísticas. Así se evita
+// que el tiempo de ejecución se vea afectado por el cálculo extra.
+// Esto se puede hacer por ejemplo como vemos en el main 
+// (#if _STATS_ ... #endif)
 }
 
 int main(int argc, char* argv[]) {
@@ -35,24 +33,14 @@ int main(int argc, char* argv[]) {
     ofstream estadisticas;
     estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
     writeJson(
-        {
+        {   
             {"tamaño_diccionario", diccionario.size()},
             {"tamaño_texto", texto.size()},
+            // poner aquí todas las estadísticas, con su par nombre/valor
+            // ejemplo:
             {
                 "total_comparaciones_busqueda_fracaso", 
-                diccionario_hash.total_comparaciones_busqueda_fracaso
-            },
-            {
-                "total_comparaciones_busqueda_exito", 
-                diccionario_hash.total_comparaciones_busqueda_exito
-            },
-            {
-                "total_comparaciones_creacion", 
-                diccionario_hash.total_comparaciones_creacion
-            },
-            {
-                "colisiones",
-                diccionario_hash.colisiones()
+                valor_de_total_comparaciones_busqueda_fracaso
             }
         }
         ,
