@@ -7,17 +7,17 @@ ALGORITMO=$1
 #N=$2
 #PROPORCION=$3
 
-CAMINO=./algoritmos/$ALGORITMO
+PATH_ALGORITMO=./algoritmos/$ALGORITMO
+PATH_SALIDAS=./salidas/$ALGORITMO
 
 # Comprobamos si el algoritmo existe 
-if [ ! -f $CAMINO/main.cc ]; then
-    echo "El algoritmo no existe o no tiene archivo main.cc"
+if [ ! -f $PATH_ALGORITMO.cc ]; then
+    echo "El algoritmo no existe"
     echo "Lista de algoritmos:"
-    cd algoritmos
-    for folder in *; do
-        if [ -f $folder/main.cc ]; then
-            echo \* $folder
-        fi
+    for file in algoritmos/*.cc; do
+        filename=$(basename "$file")
+        filename="${filename%.*}"
+        echo $filename
     done
     exit
 fi
@@ -29,14 +29,18 @@ fi
 #./generador-archivos $N $PROPORCION
 
 # Compilamos el algoritmo
-make algoritmos/$ALGORITMO/main
-make algoritmos/$ALGORITMO/main-stats
+make $PATH_ALGORITMO
+make $PATH_ALGORITMO-stats
+
+# Creamos path de output si no existe
+
+mkdir -p $PATH_SALIDAS
 
 # Ejecutamos el algoritmo para medir el tiempo
-$CAMINO/main archivos/arxiu1 archivos/arxiu2 $CAMINO/tiempo.out > $CAMINO/output.out
+$PATH_ALGORITMO archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/tiempo.out > $PATH_SALIDAS/output.out
 
 # Ejecutamos el algoritmo para medir estadísticas
-$CAMINO/main-stats archivos/arxiu1 archivos/arxiu2 $CAMINO/estadisticas.json > $CAMINO/output-stats.out
+$PATH_ALGORITMO-stats archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/estadisticas.json > $PATH_SALIDAS/output-stats.out
 
 # Comprobamos que ha dado un resultado correcto
 
@@ -44,13 +48,13 @@ make algoritmo-seguro
 
 ./algoritmo-seguro archivos/arxiu1 archivos/arxiu2 > tmp.txt
 
-if ! cmp tmp.txt $CAMINO/output.out >/dev/null 2>&1; then
+if ! cmp tmp.txt $PATH_SALIDAS/output.out >/dev/null 2>&1; then
     echo "El algoritmo no ha dado un resultado correcto"
     rm -f tmp.txt
     exit
 fi
 
-if ! cmp tmp.txt $CAMINO/output-stats.out >/dev/null 2>&1; then
+if ! cmp tmp.txt $PATH_SALIDAS/output-stats.out >/dev/null 2>&1; then
     echo "El algoritmo con estadísticas no ha dado un resultado correcto"
     rm -f tmp.txt
     exit
@@ -62,9 +66,9 @@ rm -f tmp.txt
 
 echo "Resultado correcto"
 echo -n "Tiempo ejecución algoritmo: "
-cat $CAMINO/tiempo.out
+cat $PATH_SALIDAS/tiempo.out
 echo " microsegundos"
 
 echo "Estadísticas en formato JSON:"
-cat $CAMINO/estadisticas.json
+cat $PATH_SALIDAS/estadisticas.json
 echo ""
