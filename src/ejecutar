@@ -46,11 +46,13 @@ make algoritmo-seguro
 
 if ! cmp tmp.txt $CAMINO/output.out >/dev/null 2>&1; then
     echo "El algoritmo no ha dado un resultado correcto"
+    rm -f tmp.txt
     exit
 fi
 
 if ! cmp tmp.txt $CAMINO/output-stats.out >/dev/null 2>&1; then
     echo "El algoritmo con estadísticas no ha dado un resultado correcto"
+    rm -f tmp.txt
     exit
 fi
 
