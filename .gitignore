@@ -27,6 +27,11 @@
 *.exe
 *.out
 *.app
+main
+main-stats
+generador-archivos
+algoritmo-seguro
+
 
 # Arxius
 arxiu1
