@@ -7,8 +7,8 @@ using namespace std;
 typedef vector<int>  VI;
 typedef vector<bool> VB;
 
-void usage() {
-    cerr << "programa path_fichero_diccionario path_fichero_texto" << endl;
+void usage(string prog) {
+    cerr << "Usage: " + prog + " path_fichero_diccionario path_fichero_texto" << endl;
     exit(1);
 }
 
@@ -33,7 +33,7 @@ void lee_entrada(char* path_diccionario, char* path_texto,
 
     int x;
     while (fich_diccionario >> x) diccionario.push_back(x);
-    while (fich_texto >> x)       texto.push_back(x);
+    while (fich_texto       >> x) texto.push_back(x);
 }
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
@@ -41,7 +41,7 @@ void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 3) usage();
+    if (argc < 3) usage(argv[0]);
 
     VI diccionario, texto;
     lee_entrada(argv[1], argv[2], diccionario, texto);

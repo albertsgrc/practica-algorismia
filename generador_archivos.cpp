@@ -6,8 +6,8 @@
 
 using namespace std;
 
-void usage() {
-    cerr << "Usage: generador-archivos n proporcion" << endl;
+void usage(string prog) {
+    cerr << "Usage: " + prog + " n proporcion" << endl;
     exit(1);
 }
 
@@ -53,7 +53,7 @@ void crear_arxiu1(int n, vector<int>& diccionario) {
 }
 
 void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
-    int repetidos = n*proporcion/100;
+    int repetidos = n*proporcion;
     vector<int> texto(2*n);
 
     for (int&x : texto) x = randint();
@@ -61,7 +61,7 @@ void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
     for (int i = 0; i < repetidos; ++i) {
         int indice_arxiu1 = rand()%n;
         int indice_arxiu2 = rand()%(2*n);
-        texto[indice_arxiu2] =  diccionario[indice_arxiu1];
+        texto[indice_arxiu2] = diccionario[indice_arxiu1];
     }
 
     ofstream arxiu2;
@@ -72,7 +72,7 @@ void crear_arxiu2(int n, double proporcion, const vector<int>& diccionario) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 3) usage();
+    if (argc < 3) usage(argv[0]);
 
     int n; double proporcion;
     parsea_parametros(argv[1], argv[2], n, proporcion);
