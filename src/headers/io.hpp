@@ -20,7 +20,7 @@ void usage(string prog) {
     exit(0);
 }
 
-void writeJson(vector<pair<string, int>> data, ostream& os) {
+void escribe_json(vector<pair<string, int>> data, ostream& os) {
     os << "{";
     for (int i = 0; i < data.size(); ++i) {
         if (i > 0) os << ",";

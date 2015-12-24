@@ -42,7 +42,7 @@ void parsea_parametros(char* i_n, char* i_proporcion, int& n, double& proporcion
         error("La proporcion tiene que estar entre 0 y 1");
 }
 
-void crear_diccionario(int n, vector<int>& diccionario) {
+void crea_diccionario(int n, vector<int>& diccionario) {
     diccionario = vector<int>(n);
 
     ofstream arxiu1;
@@ -56,7 +56,7 @@ void crear_diccionario(int n, vector<int>& diccionario) {
     arxiu1.close();
 }
 
-void crear_texto(int n, double proporcion, const vector<int>& diccionario, int num) {
+void crea_texto(int n, double proporcion, const vector<int>& diccionario, int num) {
     int repetidos = n*proporcion;
     vector<int> texto(2*n);
 
@@ -84,9 +84,9 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
 
     vector<int> diccionario;
-    crear_diccionario(n, diccionario);
+    crea_diccionario(n, diccionario);
 
     int numero_textos = argc > 3 ? atoi(argv[3]) : 1;
     for (int i = 0; i < numero_textos; ++i)
-        crear_texto(n, proporcion, diccionario, i + 2);
+        crea_texto(n, proporcion, diccionario, i + 2);
 }

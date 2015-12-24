@@ -1,18 +1,18 @@
 #include <chrono>
 
-template<typename TimeT = std::chrono::microseconds,
-    typename ClockT=std::chrono::high_resolution_clock,
-    typename DurationT=double>
+template<typename TiempoT = std::chrono::microseconds,
+    typename RelojT=std::chrono::high_resolution_clock,
+    typename DuracionT=double>
 class Cronometro
 {
 private:
-    std::chrono::time_point<ClockT> _start, _end;
+    std::chrono::time_point<RelojT> _inicio, _fin;
 public:
-    Cronometro() { start(); }
-    void start() { _start = _end = ClockT::now(); }
-    DurationT stop() { _end = ClockT::now(); return elapsed();}
-    DurationT elapsed() {
-        auto delta = std::chrono::duration_cast<TimeT>(_end-_start);
+    Cronometro() { iniciar(); }
+    void iniciar() { _inicio = _fin = RelojT::now(); }
+    DuracionT finalizar() { _fin = RelojT::now(); return transcurrido();}
+    DuracionT transcurrido() {
+        auto delta = std::chrono::duration_cast<TiempoT>(_fin-_inicio);
         return delta.count();
     }
 };

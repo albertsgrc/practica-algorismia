@@ -23,16 +23,16 @@ int main(int argc, char* argv[]) {
     vector<bool> resultado(texto.size());
 
     Cronometro<> c;
-    c.start();
+    c.iniciar();
     algoritmo(diccionario, texto, resultado);
-    c.stop();
+    c.finalizar();
 
     for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
     ofstream estadisticas;
     estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
-    writeJson(
+    escribe_json(
         {   
             {"tamaño_diccionario", diccionario.size()},
             {"tamaño_texto", texto.size()},
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     #else
     ofstream tiempo;
     tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
-    tiempo << c.elapsed();
+    tiempo << c.transcurrido();
     tiempo.close();
     #endif
 }
