@@ -72,7 +72,7 @@ class hash_set {
             total_comparaciones_creacion = 0;
             #endif
 
-            int desiredsize = 3*v.size();
+            int desiredsize = 2*v.size();
             int size = 1;
             while (size < desiredsize) size <<= 1;
             T = vector<forward_list<Key>>(size);

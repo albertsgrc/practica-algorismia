@@ -106,7 +106,7 @@ class hash_set {
 
             #endif
 
-            int desiredsize = 3*v.size();
+            int desiredsize = 2*v.size();
             int size = 1;
             while (size < desiredsize) size <<= 1;
             T = vector<Bucket>(size);
