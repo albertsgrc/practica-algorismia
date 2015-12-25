@@ -21,18 +21,10 @@ algoritmos/%-stats: algoritmos/%.cc
 	g++ $(FLAGS) -D_STATS_ $< -o $@
 
 clean: 
-	for algo in $(ALGORITMOS); do \
-		rm -f algoritmos/$$algo; \
-		rm -f algoritmos/$$algo-stats; \
-	done
-	rm -f $(OTROS)
+	rm -f $(OTROS) $(ALGORITMOS) $(ALGORITMOS_STATS)
 
 ultraclean:
-	for algo in $(ALGORITMOS); do \
-		rm -f algoritmos/$$algo; \
-		rm -f algoritmos/$$algo-stats; \
-	done
-	rm -f $(OTROS)
+	rm -f $(OTROS) $(ALGORITMOS) $(ALGORITMOS_STATS)
 
 	rm -rf salidas/*
 	rm -f archivos/*
