@@ -67,12 +67,12 @@ class hash_set {
         hash_set(const vector<Key>& v) {
             #if _STATS_
             en_creacion = true;
-            total_comparaciones_busqueda_fracaso = 0;
-            total_comparaciones_busqueda_exito = 0;
+            total_comparaciones_busqueda_fracaso = 
+            total_comparaciones_busqueda_exito =
             total_comparaciones_creacion = 0;
             #endif
 
-            int desiredsize = 3*v.size();
+            int desiredsize = 2*v.size();
             int size = 1;
             while (size < desiredsize) size <<= 1;
             T = vector<forward_list<Key>>(size);
