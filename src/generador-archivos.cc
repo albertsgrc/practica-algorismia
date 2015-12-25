@@ -56,6 +56,7 @@ void crea_diccionario(int n, vector<int>& diccionario) {
     arxiu1.close();
 }
 
+// TODO: Això s'ha d'arreglar
 void crea_texto(int n, double proporcion, const vector<int>& diccionario, int num) {
     int repetidos = 2*n*proporcion;
     vector<int> texto(2*n);
@@ -64,6 +65,7 @@ void crea_texto(int n, double proporcion, const vector<int>& diccionario, int nu
 
     for (int i = 0; i < repetidos; ++i) {
         int indice_arxiu1 = rand()%n;
+        // Aquest index no hauria de poder repetir-se
         int indice_arxiu2 = rand()%(2*n);
         texto[indice_arxiu2] = diccionario[indice_arxiu1];
     }

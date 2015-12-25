@@ -8,8 +8,10 @@ using namespace std;
 
 class trie {
 private:
-
-    static const int BASE = 10;
+    // Siempre base potencia de 2
+    static const int BASE    = 16;
+    static const int MASCARA = BASE - 1;
+    static const int POT_2   = 4; 
 
     struct nodo {
         bool existe;
@@ -23,24 +25,24 @@ private:
     nodo* raiz_p; // Trie para los positivos
     nodo* raiz_n; // Trie para los negativos
 
-    void insertar_imm(int x, nodo* n) {
+    void insertar_imm(int x, nodo* &n) {
         if (n == NULL) n = new nodo(false);
 
-        int ult_dig = x%BASE;
-        int resto   = x/BASE;
+        int ult_dig = x & MASCARA;
+        int resto   = x >> POT_2;
         nodo* hijo  = n->hijos[ult_dig];
 
         if (resto == 0) {
-            if (hijo == NULL) hijo = new nodo(true);
+            if (hijo == NULL) n->hijos[ult_dig] = new nodo(true);
             else hijo->existe = true;
         }
-        else insertar_imm(resto, hijo);
+        else insertar_imm(resto, n->hijos[ult_dig]);
     }
 
     // PRE: x != 0, n != NULL
     bool contiene_imm(int x, nodo* n) {
-        int ult_dig = x%BASE;
-        int resto   = x/BASE;
+        int ult_dig = x & MASCARA;
+        int resto   = x >> POT_2;
         nodo* hijo  = n->hijos[ult_dig]; 
 
         return hijo != NULL and 
@@ -50,7 +52,7 @@ private:
 public:
     trie() : raiz_p(NULL), raiz_n(NULL) {}
 
-    void insertar(int x) {
+    inline void insertar(int x) {
         if (x == 0) {
             if (raiz_p != NULL) raiz_p->existe = true;
             else raiz_p = new nodo(true);
@@ -59,7 +61,7 @@ public:
         else insertar_imm(-x, raiz_n); 
     }
 
-    bool contiene(int x) {
+    inline bool contiene(int x) {
         if (x == 0) return raiz_p != NULL and raiz_p->existe;
         else if (x > 0) return raiz_p != NULL and contiene_imm(x, raiz_p);
         else return raiz_n != NULL and contiene_imm(-x, raiz_n);
