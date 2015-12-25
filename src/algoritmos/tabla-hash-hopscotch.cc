@@ -96,12 +96,9 @@ class hash_set {
         hash_set(const vector<Key>& v) {
             #if _STATS_
 
-            total_rehashes = 0;
-
-            total_saltos_creacion = 0;
-            total_comparaciones_creacion = 0;
-
-            total_comparaciones_busqueda_fracaso = 0;
+            total_rehashes = total_saltos_creacion = 
+            total_comparaciones_creacion = 
+            total_comparaciones_busqueda_fracaso =
             total_comparaciones_busqueda_exito = 0;
 
             #endif
