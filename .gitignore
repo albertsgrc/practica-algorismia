@@ -27,17 +27,17 @@
 *.exe
 *.out
 *.app
-.src/algoritmos/*
-!.src/algoritmos/*.cc
+src/algoritmos/*
+!src/algoritmos/*.cc
 generador-archivos
 algoritmo-seguro
 
 
 # Arxius
-.src/archivos/
+src/archivos/
 
 # Sortides
-.src/salidas/
+src/salidas/
 
 #CLion
 .idea/
