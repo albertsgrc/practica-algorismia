@@ -50,6 +50,10 @@ make algoritmo-seguro
 
 if ! cmp tmp.txt $PATH_SALIDAS/output.out >/dev/null 2>&1; then
     echo "El algoritmo no ha dado un resultado correcto"
+    echo "Resultado correcto:"
+    cat tmp.txt
+    echo "Resultado algoritmo:"
+    cat $PATH_SALIDAS/output.out
     rm -f tmp.txt
     exit
 fi

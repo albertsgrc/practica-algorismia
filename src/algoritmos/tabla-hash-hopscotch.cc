@@ -11,50 +11,76 @@ template<typename Key>
 class hash_set {
     
     private:
-        vector<forward_list<Key>> T;
+        struct Bucket {
+            bool ocupado;
+            long hopmap;
+            Key key;
 
-        inline bool dentro(const Key &k, forward_list<Key> &l) {
+            Bucket() : ocupado(false), hopmap(0), key(Key()) {}
+        };
+
+        vector<Bucket> T;
+
+        static const int H = 8*sizeof(long);
+
+        inline void rehash() {
             #if _STATS_
-            int comparaciones = 0;
+            ++total_rehashes;
             #endif
 
-            for (Key& kit : l) {
-                #if _STATS_
-                ++comparaciones;
-                #endif
+            vector<Bucket> aux(2*T.size());
 
-                if (kit == k) {
-                    #if _STATS_
-                        if (en_creacion) total_comparaciones_creacion += comparaciones;
-                        else total_comparaciones_busqueda_exito += comparaciones;
-                    #endif
+            for (const Bucket& b : T) insertar(aux, b.key);
 
-                    return true;
-                }
-            }
-
-            #if _STATS_
-                if (en_creacion) total_comparaciones_creacion += comparaciones;
-                else total_comparaciones_busqueda_fracaso += comparaciones;
-            #endif
-
-            return false; 
+            T.swap(aux);
         }
 
-        inline void insertar(const Key& k) {
-            int pos = hash<Key>()(k)&(T.size() - 1);
-            if (not dentro(k, T[pos])) T[pos].push_front(k);
+        inline void insertar(vector<Bucket>& t, const Key& k) {
+            int pos = hash<Key>()(k)&(t.size() - 1);
+            long hm = t[pos].hopmap;
+
+            for (int i = 0; i < H; ++i) {
+                #if _STATS_
+                ++total_saltos_creacion;
+                #endif
+
+                int index = (pos+i)&(t.size() - 1);
+                if (hm & 1) {
+                    #if _STATS_
+                    ++total_comparaciones_creacion;
+                    #endif
+
+                    if (t[index].key == k) return;
+                }
+                else if (not t[index].ocupado) {
+                    t[index].key = k;
+                    t[index].ocupado = true;
+                    t[pos].hopmap |= 1 << i;
+                    return;
+                }
+                hm >>= 1;
+            } 
+
+            rehash();
+            insertar(t, k);
+        }
+
+        inline int cerosFinales(int i) {
+            return __builtin_ctz(i);
         }
 
     public:
         #if _STATS_
 
-        int total_comparaciones_busqueda_exito;
-        int total_comparaciones_busqueda_fracaso;
-        int total_comparaciones_creacion;
-        int tamano_tabla;
+        int total_rehashes;
 
-        bool en_creacion;
+        int total_saltos_creacion;
+        int total_comparaciones_creacion;
+
+        int total_comparaciones_busqueda_fracaso;
+        int total_comparaciones_busqueda_exito;
+
+        int tamano_tabla;
 
         // llamadas a insertar = tamaño diccionario
         // llamadas a contiene = tamaño texto 
@@ -65,40 +91,59 @@ class hash_set {
         hash_set() {}
         hash_set(const vector<Key>& v) {
             #if _STATS_
-            en_creacion = true;
+
+            total_rehashes = 0;
+
+            total_saltos_creacion = 0;
+            total_comparaciones_creacion = 0;
+
             total_comparaciones_busqueda_fracaso = 0;
             total_comparaciones_busqueda_exito = 0;
-            total_comparaciones_creacion = 0;
+
             #endif
 
             int desiredsize = 3*v.size();
             int size = 1;
             while (size < desiredsize) size <<= 1;
-            T = vector<forward_list<Key>>(size);
+            T = vector<Bucket>(size);
 
-            for (const Key& k : v) insertar(k);
+            for (const Key& k : v) insertar(T, k);
 
             #if _STATS_
             tamano_tabla = size;
-            en_creacion = false;
             #endif
         }
 
         inline bool contiene(const Key &k) {
             int pos = hash<Key>()(k)&(T.size() - 1);
-            return dentro(k, T[pos]); 
-        }
+            long hm = T[pos].hopmap;
 
-        int colisiones() {
-            int occupied_buckets = 0;
-            int elements = 0;
+            #if _STATS_
+            int comparaciones = 0;
+            #endif
 
-            for (const forward_list<Key>& l : T) {
-                occupied_buckets += l.empty() ? 0 : 1;
-                for (auto it = l.begin(); it != l.end(); ++it) ++elements; 
+            while (hm > 0) {
+                int index = (pos + cerosFinales(hm))&(T.size() - 1);
+
+                #if _STATS_
+                ++comparaciones;
+                #endif
+
+                if (T[index].key == k) {
+                    #if _STATS_
+                    total_comparaciones_busqueda_exito += comparaciones;
+                    #endif
+                    return true;
+                }
+
+                hm &= hm - 1;
             }
 
-            return elements - occupied_buckets;
+            #if _STATS_
+            total_comparaciones_busqueda_fracaso += comparaciones;
+            #endif
+
+            return false;
         }
 };
 
@@ -147,12 +192,12 @@ int main(int argc, char* argv[]) {
                 diccionario_hash.total_comparaciones_creacion
             },
             {
-                "tamano_tabla_hash",
-                diccionario_hash.tamano_tabla
+                "total_saltos_creacion",
+                diccionario_hash.total_saltos_creacion
             },
             {
-                "colisiones",
-                diccionario_hash.colisiones()
+                "tamano_tabla_hash",
+                diccionario_hash.tamano_tabla
             }
         }
         ,
