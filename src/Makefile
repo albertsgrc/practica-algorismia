@@ -1,8 +1,8 @@
 FLAGS = -std=c++1y -Wall -Wextra -Werror -Wno-uninitialized -Wno-sign-compare -Wshadow -O3 -I./headers
 
 #ALGORITMOS = busqueda-binaria filtro-bloom tabla-hash-cuckoo tabla-hash-lista trie
-ALGORITMOS       = algoritmos/tabla-hash-lista algoritmos/tabla-hash-hopscotch
-ALGORITMOS_STATS = algoritmos/tabla-hash-lista-stats algoritmos/tabla-hash-hopscotch-stats
+ALGORITMOS       = algoritmos/tabla-hash-lista algoritmos/tabla-hash-hopscotch algoritmos/trie
+ALGORITMOS_STATS = algoritmos/tabla-hash-lista-stats algoritmos/tabla-hash-hopscotch-stats algoritmos/trie-stats
 OTROS      = generador-archivos algoritmo-seguro
 
 all: $(OTROS) $(ALGORITMOS) $(ALGORITMOS_STATS)

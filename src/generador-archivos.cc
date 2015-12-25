@@ -57,7 +57,7 @@ void crea_diccionario(int n, vector<int>& diccionario) {
 }
 
 void crea_texto(int n, double proporcion, const vector<int>& diccionario, int num) {
-    int repetidos = n*proporcion;
+    int repetidos = 2*n*proporcion;
     vector<int> texto(2*n);
 
     for (int&x : texto) x = randint();

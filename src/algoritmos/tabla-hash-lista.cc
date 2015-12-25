@@ -12,6 +12,7 @@ class hash_set {
     
     private:
         vector<forward_list<Key>> T;
+        int mascara;
 
         inline bool dentro(const Key &k, forward_list<Key> &l) {
             #if _STATS_
@@ -42,7 +43,7 @@ class hash_set {
         }
 
         inline void insertar(const Key& k) {
-            int pos = hash<Key>()(k)&(T.size() - 1);
+            int pos = hash<Key>()(k)&mascara;
             if (not dentro(k, T[pos])) T[pos].push_front(k);
         }
 
@@ -75,6 +76,7 @@ class hash_set {
             int size = 1;
             while (size < desiredsize) size <<= 1;
             T = vector<forward_list<Key>>(size);
+            mascara = size - 1;
 
             for (const Key& k : v) insertar(k);
 
@@ -85,7 +87,7 @@ class hash_set {
         }
 
         inline bool contiene(const Key &k) {
-            int pos = hash<Key>()(k)&(T.size() - 1);
+            int pos = hash<Key>()(k)&mascara;
             return dentro(k, T[pos]); 
         }
 

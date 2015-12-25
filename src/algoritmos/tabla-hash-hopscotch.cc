@@ -21,6 +21,8 @@ class hash_set {
 
         vector<Bucket> T;
 
+        int mascara;
+
         static const int H = 8*sizeof(long);
 
         inline void rehash() {
@@ -28,7 +30,9 @@ class hash_set {
             ++total_rehashes;
             #endif
 
-            vector<Bucket> aux(2*T.size());
+            int nuevo_tamano = 2*T.size();
+            vector<Bucket> aux(nuevo_tamano);
+            mascara = nuevo_tamano - 1;
 
             for (const Bucket& b : T) insertar(aux, b.key);
 
@@ -36,7 +40,7 @@ class hash_set {
         }
 
         inline void insertar(vector<Bucket>& t, const Key& k) {
-            int pos = hash<Key>()(k)&(t.size() - 1);
+            int pos = hash<Key>()(k)&mascara;
             long hm = t[pos].hopmap;
 
             for (int i = 0; i < H; ++i) {
@@ -44,7 +48,7 @@ class hash_set {
                 ++total_saltos_creacion;
                 #endif
 
-                int index = (pos+i)&(t.size() - 1);
+                int index = (pos+i)&mascara;
                 if (hm & 1) {
                     #if _STATS_
                     ++total_comparaciones_creacion;
@@ -106,6 +110,7 @@ class hash_set {
             int size = 1;
             while (size < desiredsize) size <<= 1;
             T = vector<Bucket>(size);
+            mascara = size - 1;
 
             for (const Key& k : v) insertar(T, k);
 
@@ -115,7 +120,7 @@ class hash_set {
         }
 
         inline bool contiene(const Key &k) {
-            int pos = hash<Key>()(k)&(T.size() - 1);
+            int pos = hash<Key>()(k)&mascara;
             long hm = T[pos].hopmap;
 
             #if _STATS_
@@ -123,7 +128,7 @@ class hash_set {
             #endif
 
             while (hm > 0) {
-                int index = (pos + cerosFinales(hm))&(T.size() - 1);
+                int index = (pos + cerosFinales(hm))&mascara;
 
                 #if _STATS_
                 ++comparaciones;
