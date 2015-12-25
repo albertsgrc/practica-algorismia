@@ -26,13 +26,12 @@ public:
     Bloom(const VI& diccionario){
         int entrada = diccionario.size();
         bits = 10*entrada; // m/n = 10 => k = 6 => fp = 0.0084
-        double aux = log(2)*2;
+        double aux = log(2)*(bits/entrada);
         hash_functions = (int) aux;
-        cout << "asdahsda "<<hash_functions<<endl;
         bit_vector = vector<bool> (bits,false);
-        for (int i : diccionario) insertar(i);
         values_hash = VI (hash_functions);
         for (int i=0;i<hash_functions;++i) values_hash[i] = rand();
+        for (int i : diccionario) insertar(i);
     }
 
     void insertar(int a){
@@ -67,6 +66,7 @@ void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
 }
 
 int main(int argc, char* argv[]) {
+
     if (argc < 3) usage(argv[0]);
 
     VI diccionario, texto;
