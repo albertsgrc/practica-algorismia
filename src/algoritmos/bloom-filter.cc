@@ -10,15 +10,16 @@ using namespace std;
 class Bloom{
 private:
     int bits;
-    vector<Bool> bit_vector;
+    vector<bool> bit_vector;
     int hash_functions;
     VI values_hash;
     int hash_it(int k, int key){
         return hash(key) ^ values_hash[k];
     }
 public:
+    Bloom(){}
     Bloom(int n,int k){
-        bit_vector = vector<Bool> (n,false);
+        bit_vector = vector<bool> (n,false);
         hash_functions = k;
         bits = n;
     }
@@ -26,21 +27,22 @@ public:
         int entrada = diccionario.size();
         bits = 10*entrada; // m/n = 10 => k = 6 => fp = 0.0084
         hash_functions = (int) log(2)* entrada/bits;
-        bit_vector = vector<Bool> (bits,false);
+        bit_vector = vector<bool> (bits,false);
+        for (int i : diccionario) insertar(i);
         values_hash = VI (hash_functions);
-        for (int i : values_hash) i = rand();
+        for (int i=0;i<hash_functions;++i) values_hash[i] = rand();
     }
 
     void insertar(int a){
         for (int i = 0;i<hash_functions;++i){
-            int value = hash_functions(i,a);
+            int value = hash_it(i,a);
             bit_vector[value] = true;
         }
     }
 
     bool contiene(int a){
         for (int i =0;i<hash_functions;++i){
-            int value = hash_functions(i,a);
+            int value = hash_it(i,a);
             if (not bit_vector[value]) return false;
         }
         return true;
@@ -48,6 +50,7 @@ public:
 };
 
 Bloom diccionario_hash;
+
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
 // El algoritmo deberá calcular las estadísticas de ejecución sólo si se
 // ha compilado el programa en versión estadísticas. Así se evita
