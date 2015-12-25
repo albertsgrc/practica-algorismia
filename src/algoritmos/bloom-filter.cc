@@ -14,7 +14,7 @@ private:
     int hash_functions;
     VI values_hash;
     int hash_it(int k, int key){
-        return hash(key) ^ values_hash[k];
+        return (hash<int>()(key) ^ values_hash[k]) % bits;
     }
 public:
     Bloom(){}
@@ -26,7 +26,9 @@ public:
     Bloom(const VI& diccionario){
         int entrada = diccionario.size();
         bits = 10*entrada; // m/n = 10 => k = 6 => fp = 0.0084
-        hash_functions = (int) log(2)* entrada/bits;
+        double aux = log(2)*2;
+        hash_functions = (int) aux;
+        cout << "asdahsda "<<hash_functions<<endl;
         bit_vector = vector<bool> (bits,false);
         for (int i : diccionario) insertar(i);
         values_hash = VI (hash_functions);
