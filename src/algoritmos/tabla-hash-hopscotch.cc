@@ -7,23 +7,28 @@
 #include "cronometro.hpp"
 using namespace std;
 
-template<typename Key>
+#if _HOPSCOTCH_64_
+#define T_HOPMAP unsigned long
+#else
+#define T_HOPMAP unsigned int
+#endif
+
 class hash_set {
     
     private:
         struct Bucket {
             bool ocupado;
-            long hopmap;
-            Key key;
+            T_HOPMAP hopmap;
+            int key;
 
-            Bucket() : ocupado(false), hopmap(0), key(Key()) {}
+            Bucket() : ocupado(false), hopmap((T_HOPMAP)(0)), key(int()) {}
         };
 
         vector<Bucket> T;
 
         int mascara;
 
-        static const int H = 8*sizeof(long);
+        static const int H = 8*sizeof(T_HOPMAP);
 
         inline void rehash() {
             #if _STATS_
@@ -39,9 +44,9 @@ class hash_set {
             T.swap(aux);
         }
 
-        inline void insertar(vector<Bucket>& t, const Key& k) {
-            int pos = hash<Key>()(k)&mascara;
-            long hm = t[pos].hopmap;
+        inline void insertar(vector<Bucket>& t, int k) {
+            int pos = hash_mod(k);
+            T_HOPMAP hm = t[pos].hopmap;
 
             for (int i = 0; i < H; ++i) {
                 #if _STATS_
@@ -49,7 +54,7 @@ class hash_set {
                 #endif
 
                 int index = (pos+i)&mascara;
-                if (hm & 1) {
+                if (hm & (T_HOPMAP)(1)) {
                     #if _STATS_
                     ++total_comparaciones_creacion;
                     #endif
@@ -59,18 +64,33 @@ class hash_set {
                 else if (not t[index].ocupado) {
                     t[index].key = k;
                     t[index].ocupado = true;
-                    t[pos].hopmap |= 1 << i;
+                    t[pos].hopmap |= (T_HOPMAP)(1) << ((T_HOPMAP) i);
                     return;
                 }
-                hm >>= 1;
+
+                hm >>= (T_HOPMAP)(1);
             } 
 
             rehash();
             insertar(t, k);
         }
 
-        inline int cerosFinales(int i) {
-            return __builtin_ctz(i);
+        inline int cerosFinales(T_HOPMAP x) {
+            #if _HOPSCOTCH_64_
+            return __builtin_ctzl(x);
+            #else
+            return __builtin_ctz(x);
+            #endif
+        }
+
+        inline int siguiente_potencia_2(int x) {
+            int p = 1;
+            while (p < x) p <<= 1;
+            return p;
+        }
+
+        inline int hash_mod(int k) {
+            return k & mascara;
         }
 
     public:
@@ -90,10 +110,22 @@ class hash_set {
         // llamadas a contiene = tamaño texto 
         // llamadas a hash = llamadas a insertar + llamadas a contiene
 
+        // avg comparaciones busqueda exito = total comparaciones busqueda exito / exitos
+        // avg comparaciones busqueda fracaso = total comparaciones busqueda fracaso / fracasos
+        // total comparaciones busqueda = total_comparaciones_busqueda_exito + total_comparaciones_busqueda_fracaso
+        // avg comparaciones busqueda = total comparaciones busqueda / tamano texto
+
+        // avg comparaciones creacion = total comparaciones creacion / tamano diccionario
+        // total comparaciones = total_comparaciones busqueda + total comparaciones creacion
+        // avg comparaciones = total comparaciones / (tamano texto + tamano diccionario)
+
+        // total iteraciones = total_saltos_creacion + total_comparaciones_busqueda
+        // total accesos memoria = total comparaciones (en este caso seguramente de la misma línea de cache)
+
         #endif
 
         hash_set() {}
-        hash_set(const vector<Key>& v) {
+        hash_set(const vector<int>& v) {
             #if _STATS_
 
             total_rehashes = total_saltos_creacion = 
@@ -103,29 +135,27 @@ class hash_set {
 
             #endif
 
-            int desiredsize = 2*v.size();
-            int size = 1;
-            while (size < desiredsize) size <<= 1;
-            T = vector<Bucket>(size);
-            mascara = size - 1;
+            int tamano = siguiente_potencia_2(2*v.size());
+            T = vector<Bucket>(tamano);
+            mascara = tamano - 1;
 
-            for (const Key& k : v) insertar(T, k);
+            for (int k : v) insertar(T, k);
 
             #if _STATS_
-            tamano_tabla = size;
+            tamano_tabla = tamano;
             #endif
         }
 
-        inline bool contiene(const Key &k) {
-            int pos = hash<Key>()(k)&mascara;
-            long hm = T[pos].hopmap;
+        inline bool contiene(int k) {
+            int pos = hash_mod(k);
+            T_HOPMAP hm = T[pos].hopmap;
 
             #if _STATS_
             int comparaciones = 0;
             #endif
 
-            while (hm > 0) {
-                int index = (pos + cerosFinales(hm))&mascara;
+            while (hm > (T_HOPMAP)(0)) {
+                int index = (pos + cerosFinales(hm)) & mascara;
 
                 #if _STATS_
                 ++comparaciones;
@@ -138,7 +168,8 @@ class hash_set {
                     return true;
                 }
 
-                hm &= hm - 1;
+                // Eliminamos el 1 final
+                hm &= hm - (T_HOPMAP)(1);
             }
 
             #if _STATS_
@@ -150,10 +181,10 @@ class hash_set {
 };
 
 
-hash_set<int> diccionario_hash;
+hash_set diccionario_hash;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
-    diccionario_hash = hash_set<int>(diccionario);
+    diccionario_hash = hash_set(diccionario);
 
     for (int i = 0; i < texto.size(); ++i) 
         resultado[i] = diccionario_hash.contiene(texto[i]);
@@ -196,6 +227,10 @@ int main(int argc, char* argv[]) {
             {
                 "total_saltos_creacion",
                 diccionario_hash.total_saltos_creacion
+            },
+            {
+                "total_rehashes",
+                diccionario_hash.total_rehashes
             },
             {
                 "tamano_tabla_hash",

@@ -2,7 +2,7 @@
 
 template<typename TiempoT = std::chrono::microseconds,
     typename RelojT=std::chrono::high_resolution_clock,
-    typename DuracionT=double>
+    typename DuracionT=unsigned long long>
 class Cronometro
 {
 private:

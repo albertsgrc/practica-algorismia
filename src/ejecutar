@@ -10,14 +10,14 @@ ALGORITMO=$1
 PATH_ALGORITMO=./algoritmos/$ALGORITMO
 PATH_SALIDAS=./salidas/$ALGORITMO
 
+make
+
 # Comprobamos si el algoritmo existe 
-if [ ! -f $PATH_ALGORITMO.cc ]; then
+if [ ! -f $PATH_ALGORITMO ]; then
     echo "El algoritmo no existe"
     echo "Lista de algoritmos:"
-    for file in algoritmos/*.cc; do
-        filename=$(basename "$file")
-        filename="${filename%.*}"
-        echo $filename
+    for file in $(ls algoritmos | grep -v '\.cc' | grep -v '\-stats'); do
+        echo "* $file"
     done
     exit
 fi
@@ -27,10 +27,6 @@ fi
 
 # Ejecutamos el generador
 #./generador-archivos $N $PROPORCION
-
-# Compilamos el algoritmo
-make $PATH_ALGORITMO
-make $PATH_ALGORITMO-stats
 
 # Creamos path de output si no existe
 

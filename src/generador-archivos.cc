@@ -72,6 +72,7 @@ void crea_texto(int n, double proporcion, const vector<int>& diccionario, int nu
 
     ofstream arxiu2;
     arxiu2.open("archivos/arxiu" + to_string(num));
+
     for (int x : texto) arxiu2 << x << endl;
 
     arxiu2.close();
@@ -84,6 +85,9 @@ int main(int argc, char* argv[]) {
     parsea_parametros(argv[1], argv[2], n, proporcion);
 
     srand(time(NULL));
+    int r = system("mkdir -p archivos");
+
+    if (r < 0) error("Se ha producido un error al crear la carpeta archivos");
 
     vector<int> diccionario;
     crea_diccionario(n, diccionario);

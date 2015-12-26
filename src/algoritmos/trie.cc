@@ -11,9 +11,9 @@ int llamadas_a_creadora_nodo = 0;
 class trie {
 private:
     // Siempre base potencia de 2
-    static const int BASE    = 16;
-    static const int MASCARA = BASE - 1;
-    static const int POT_2   = 4; 
+    static const int BASE       = 16;
+    static const int MASCARA    = BASE - 1;
+    static const int LOG_BASE_2 = 4; 
 
     #if _STATS_
     int llamadas_aux;
@@ -39,13 +39,13 @@ private:
 
     void insertar_imm(int x, nodo* &n) {
         #if _STATS_
-        ++llamadas_recursivas_insertar;
+        ++llamadas_recursivas_creacion;
         #endif
 
         if (n == NULL) n = new nodo(false);
 
         int ult_dig = x & MASCARA;
-        int resto   = x >> POT_2;
+        int resto   = x >> LOG_BASE_2;
         nodo* hijo  = n->hijos[ult_dig];
 
         if (resto == 0) {
@@ -62,7 +62,7 @@ private:
         #endif
 
         int ult_dig = x & MASCARA;
-        int resto   = x >> POT_2;
+        int resto   = x >> LOG_BASE_2;
         nodo* hijo  = n->hijos[ult_dig]; 
 
         return hijo != NULL and 
@@ -71,16 +71,24 @@ private:
 
 public:
     #if _STATS_
-    int llamadas_recursivas_insertar;
-    int llamadas_recursivas_contiene_fracaso;
-    int llamadas_recursivas_contiene_exito;
+    int llamadas_recursivas_creacion;
+    int llamadas_recursivas_busqueda_fracaso;
+    int llamadas_recursivas_busqueda_exito;
+
+    // total_iteraciones = 
+    // llamadas_recursivas = 
+    // llamadas_recursivas_creacion + llamadas_recursivas_busqueda_exito + llamadas_recursivas_busqueda_fracaso
+    // numero comparaciones booleanos/punteros ~~ 2*total_iteraciones
+    // numero & y >> ~~ total_iteraciones
+    // numero accesos a memoria ~~ total_iteraciones
+    
     #endif
 
     trie() : raiz_p(NULL), raiz_n(NULL) {
         #if _STATS_
-        llamadas_recursivas_insertar =
-        llamadas_recursivas_contiene_fracaso =
-        llamadas_recursivas_contiene_exito = 0;
+        llamadas_recursivas_creacion =
+        llamadas_recursivas_busqueda_fracaso =
+        llamadas_recursivas_busqueda_exito = 0;
         #endif
     }
 
@@ -103,8 +111,8 @@ public:
                 if (x > 0) encontrado = raiz_p != NULL and contiene_imm(x, raiz_p);
                 else encontrado = raiz_n != NULL and contiene_imm(-x, raiz_n);
 
-                if (encontrado) llamadas_recursivas_contiene_exito += llamadas_aux;
-                else llamadas_recursivas_contiene_fracaso += llamadas_aux;
+                if (encontrado) llamadas_recursivas_busqueda_exito += llamadas_aux;
+                else llamadas_recursivas_busqueda_fracaso += llamadas_aux;
                 return encontrado;
             }
         #else
@@ -146,16 +154,16 @@ int main(int argc, char* argv[]) {
             {"tamaño_diccionario", diccionario.size()},
             {"tamaño_texto", texto.size()},
             {
-                "llamadas_recursivas_insertar",
-                diccionario_trie.llamadas_recursivas_insertar
+                "llamadas_recursivas_creacion",
+                diccionario_trie.llamadas_recursivas_creacion
             },
             {
-                "llamadas_recursivas_contiene_fracaso",
-                diccionario_trie.llamadas_recursivas_contiene_fracaso
+                "llamadas_recursivas_busqueda_fracaso",
+                diccionario_trie.llamadas_recursivas_busqueda_fracaso
             },
             {
-                "llamadas_recursivas_contiene_exito",
-                diccionario_trie.llamadas_recursivas_contiene_exito
+                "llamadas_recursivas_busqueda_exito",
+                diccionario_trie.llamadas_recursivas_busqueda_exito
             },
             {
                 "llamadas_a_creadora_nodo",

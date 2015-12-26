@@ -1,0 +1,171 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <cmath>
+#include "io.hpp"
+#include "cronometro.hpp"
+using namespace std;
+
+class filtro_bloom {
+
+private:
+
+    int mascara;
+    VB bits;
+    VI funciones_hash;
+
+    constexpr static const double LN_2 = 0.69314718055994530941;
+    constexpr static const double OPT  = 9.0/13.0;
+
+    constexpr static const double PROB_FALSO_POSITIVO = 0.0000001;
+
+    inline int hashea(unsigned int h, unsigned int k) {
+        const unsigned int m = 0x5bd1e995;
+        const int r = 24;
+
+        h ^= 4;
+        k *= m;
+        k ^= k >> r;
+        k *= m;
+
+        h *= m;
+        h ^= k;
+
+        h ^= h >> 13;
+        h *= m;
+        h ^= h >> 15;
+
+        return h & mascara;
+    }
+
+    void insertar(int x) {
+        for (int funcion : funciones_hash) {
+            bits[hashea(funcion, x)] = true;
+        }
+    }
+
+    inline int siguiente_potencia_2(int x) {
+        int p = 1;
+        while (p < x) p <<= 1;
+        return p;
+    }
+
+public:
+
+    #if _STATS_
+
+    int numero_funciones;
+    int hashes_busqueda_fracaso;
+    int hashes_busqueda_exito;
+
+    // hashes_creacion = numero_funciones*tamaño_diccionario
+    // hashes_busqueda = hashes_busqueda_exito + hashes_busqueda_fracaso
+    // total iteraciones = hashes_busqueda + hashes_creacion
+
+    #endif
+
+    filtro_bloom() {}
+    filtro_bloom(const VI& v) {
+        int n = v.size();
+        int m = log(PROB_FALSO_POSITIVO)*n/(-OPT*LN_2);
+        m = siguiente_potencia_2(m);
+
+        mascara = m - 1;
+
+        bits = VB(m);
+
+        int n_funciones = LN_2*double(m)/n;
+
+        funciones_hash = VI(n_funciones);
+
+        srand(time(NULL));
+        for (int& funcion : funciones_hash) funcion = 2*rand() - 1;
+        
+        #if _STATS_
+        numero_funciones = funciones_hash.size();
+        hashes_busqueda_exito = hashes_busqueda_fracaso = 0;
+        #endif
+
+        for (int x : v) insertar(x);
+    }
+
+    bool contiene(int x) {
+        #if _STATS_
+        int hashes = 0;
+        #endif
+
+        for (int funcion : funciones_hash) {
+            #if _STATS_
+            ++hashes;
+            #endif
+            if (not bits[hashea(funcion, x)]) {
+                #if _STATS_
+                hashes_busqueda_fracaso += hashes;
+                #endif
+                return false;
+            }
+        }
+
+        #if _STATS_
+        hashes_busqueda_exito += hashes;
+        #endif
+        
+        return true;
+    }
+};
+
+filtro_bloom diccionario_bloom;
+
+void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
+    diccionario_bloom = filtro_bloom(diccionario);
+
+    for (int i = 0; i < texto.size(); ++i)
+        resultado[i] = diccionario_bloom.contiene(texto[i]);
+}
+
+int main(int argc, char* argv[]) {
+
+    if (argc < 3) usage(argv[0]);
+
+    VI diccionario, texto;
+    lee_entrada(argv[1], argv[2], diccionario, texto);
+
+    vector<bool> resultado(texto.size());
+
+    Cronometro<> c;
+    c.iniciar();
+    algoritmo(diccionario, texto, resultado);
+    c.finalizar();
+
+    for (bool b : resultado) cout << b << endl;
+
+    #if _STATS_
+    ofstream estadisticas;
+    estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
+    escribe_json(
+        {
+            {"tamaño_diccionario", diccionario.size()},
+            {"tamaño_texto", texto.size()},
+            {
+                "numero_funciones",
+                diccionario_bloom.numero_funciones
+            },
+            {
+                "hashes_busqueda_exito",
+                diccionario_bloom.hashes_busqueda_exito
+            },
+            {
+                "hashes_busqueda_fracaso",
+                diccionario_bloom.hashes_busqueda_fracaso
+            }
+        }
+        ,
+        estadisticas);
+    #else
+    ofstream tiempo;
+    tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
+    tiempo << c.transcurrido();
+    tiempo.close();
+    #endif
+}
