@@ -207,12 +207,16 @@ Cronometro<> insercion, busqueda;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
     insercion.iniciar();
+
     diccionario_hash_hopscotch = hash_hopscotch(diccionario);
+    
     insercion.finalizar();
 
     busqueda.iniciar();
+    
     for (int i = 0; i < texto.size(); ++i)
         resultado[i] = diccionario_hash_hopscotch.contiene(texto[i]);
+    
     busqueda.finalizar();
 }
 

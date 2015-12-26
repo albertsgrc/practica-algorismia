@@ -42,9 +42,8 @@ private:
     }
 
     void insertar(int x) {
-        for (int funcion : funciones_hash) {
+        for (int funcion : funciones_hash)
             bits[posicion(funcion, x)] = true;
-        }
     }
 
     // Devuelve la siguiente potencia de 2 >= x
@@ -133,12 +132,16 @@ Cronometro<> insercion, busqueda;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
     insercion.iniciar();
+
     diccionario_bloom = filtro_bloom(diccionario);
+    
     insercion.finalizar();
 
     busqueda.iniciar();
+    
     for (int i = 0; i < texto.size(); ++i)
         resultado[i] = diccionario_bloom.contiene(texto[i]);
+    
     busqueda.finalizar();
 }
 

@@ -141,12 +141,16 @@ Cronometro<> insercion, busqueda;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
     insercion.iniciar();
+
     for (int x : diccionario) diccionario_trie.insertar(x);
+    
     insercion.finalizar();
 
     busqueda.iniciar();
+    
     for (int i = 0; i < texto.size(); ++i)
         resultado[i] = diccionario_trie.contiene(texto[i]);
+    
     busqueda.finalizar();
 }
 
