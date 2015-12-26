@@ -203,13 +203,19 @@ class hash_hopscotch {
 
 
 hash_hopscotch diccionario_hash_hopscotch;
+Cronometro<> insercion, busqueda;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
+    insercion.iniciar();
     diccionario_hash_hopscotch = hash_hopscotch(diccionario);
+    insercion.finalizar();
 
-    for (int i = 0; i < texto.size(); ++i) 
+    busqueda.iniciar();
+    for (int i = 0; i < texto.size(); ++i)
         resultado[i] = diccionario_hash_hopscotch.contiene(texto[i]);
+    busqueda.finalizar();
 }
+
 
 int main(int argc, char* argv[]) {
     if (argc < 3) usage(argv[0]);
@@ -219,10 +225,10 @@ int main(int argc, char* argv[]) {
 
     VB resultado(texto.size());
 
-    Cronometro<> c;
-    c.iniciar();
+    Cronometro<> total;
+    total.iniciar();
     algoritmo(diccionario, texto, resultado);
-    c.finalizar();
+    total.finalizar();
 
     for (bool b : resultado) cout << b << endl;
 
@@ -258,12 +264,19 @@ int main(int argc, char* argv[]) {
                     diccionario_hash_hopscotch.tamano_tabla
                 }
             }
-            ,
-        estadisticas);
+        , estadisticas);
+        estadisticas.close();
     #else
         ofstream tiempo;
-        tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
-        tiempo << c.transcurrido();
+        tiempo.open(argc > 3 ? argv[3] : "tiempo.json");
+        escribe_json(
+            {
+                {"tiempo_total", total.transcurrido()},
+                {"tiempo_insercion", insercion.transcurrido()},
+                {"tiempo_busqueda", busqueda.transcurrido()}
+            }
+        ,
+        tiempo);
         tiempo.close();
     #endif
 }

@@ -33,7 +33,7 @@ fi
 mkdir -p $PATH_SALIDAS
 
 # Ejecutamos el algoritmo para medir el tiempo
-$PATH_ALGORITMO archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/tiempo.out > $PATH_SALIDAS/output.out
+$PATH_ALGORITMO archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/tiempo.json > $PATH_SALIDAS/output.out
 
 # Ejecutamos el algoritmo para medir estadísticas
 $PATH_ALGORITMO-stats archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/estadisticas.json > $PATH_SALIDAS/output-stats.out
@@ -65,10 +65,10 @@ rm -f tmp.txt
 # Y escribimos los resultados
 
 echo "Resultado correcto"
-echo -n "Tiempo ejecución algoritmo: "
-cat $PATH_SALIDAS/tiempo.out
-echo " microsegundos"
-
+echo -n "Tiempos ejecución algoritmo en formato JSON y microsegundos: "
+cat $PATH_SALIDAS/tiempo.json
+echo ""
+echo ""
 echo "Estadísticas en formato JSON:"
 cat $PATH_SALIDAS/estadisticas.json
 echo ""

@@ -6,13 +6,18 @@
 #include "cronometro.hpp"
 using namespace std;
 
+Cronometro<> insercion, busqueda;
+
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
-// El algoritmo deberá calcular las estadísticas de ejecución sólo si se
-// ha compilado el programa en versión estadísticas. Así se evita
-// que el tiempo de ejecución se vea afectado por el cálculo extra.
-// Esto se puede hacer por ejemplo como vemos en el main 
-// (#if _STATS_ ... #endif)
+    insercion.iniciar();
+    // codigo insercion
+    insercion.finalizar();
+
+    busqueda.iniciar();
+    // codigo busqueda
+    busqueda.finalizar();
 }
+
 
 int main(int argc, char* argv[]) {
     if (argc < 3) usage(argv[0]);
@@ -22,10 +27,10 @@ int main(int argc, char* argv[]) {
 
     VB resultado(texto.size());
 
-    Cronometro<> c;
-    c.iniciar();
+    Cronometro<> total;
+    total.iniciar();
     algoritmo(diccionario, texto, resultado);
-    c.finalizar();
+    total.finalizar();
 
     for (bool b : resultado) cout << b << endl;
 
@@ -43,12 +48,19 @@ int main(int argc, char* argv[]) {
                     valor_de_total_comparaciones_busqueda_fracaso
                 }
             }
-            ,
-        estadisticas);
+        , estadisticas);
+        estadisticas.close();
     #else
         ofstream tiempo;
-        tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
-        tiempo << c.transcurrido();
+        tiempo.open(argc > 3 ? argv[3] : "tiempo.json");
+        escribe_json(
+            {
+                {"tiempo_total", total.transcurrido()},
+                {"tiempo_insercion", insercion.transcurrido()},
+                {"tiempo_busqueda", busqueda.transcurrido()}
+            }
+        ,
+        tiempo);
         tiempo.close();
     #endif
 }

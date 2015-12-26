@@ -137,12 +137,17 @@ public:
 };
 
 trie diccionario_trie;
+Cronometro<> insercion, busqueda;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
+    insercion.iniciar();
     for (int x : diccionario) diccionario_trie.insertar(x);
+    insercion.finalizar();
 
-    for (int i = 0; i < texto.size(); ++i) 
+    busqueda.iniciar();
+    for (int i = 0; i < texto.size(); ++i)
         resultado[i] = diccionario_trie.contiene(texto[i]);
+    busqueda.finalizar();
 }
 
 int main(int argc, char* argv[]) {
@@ -153,10 +158,10 @@ int main(int argc, char* argv[]) {
 
     VB resultado(texto.size());
 
-    Cronometro<> c;
-    c.iniciar();
+    Cronometro<> total;
+    total.iniciar();
     algoritmo(diccionario, texto, resultado);
-    c.finalizar();
+    total.finalizar();
 
     for (bool b : resultado) cout << b << endl;
 
@@ -184,12 +189,19 @@ int main(int argc, char* argv[]) {
                     llamadas_a_creadora_nodo
                 }
             }
-            ,
-        estadisticas);
+        , estadisticas);
+        estadisticas.close();
     #else
         ofstream tiempo;
-        tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
-        tiempo << c.transcurrido();
+        tiempo.open(argc > 3 ? argv[3] : "tiempo.json");
+        escribe_json(
+            {
+                {"tiempo_total", total.transcurrido()},
+                {"tiempo_insercion", insercion.transcurrido()},
+                {"tiempo_busqueda", busqueda.transcurrido()}
+            }
+        ,
+        tiempo);
         tiempo.close();
     #endif
 }
