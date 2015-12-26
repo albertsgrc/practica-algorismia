@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     VI diccionario, texto;
     lee_entrada(argv[1], argv[2], diccionario, texto);
 
-    vector<bool> resultado(texto.size());
+    VB resultado(texto.size());
 
     Cronometro<> c;
     c.iniciar();
@@ -30,25 +30,25 @@ int main(int argc, char* argv[]) {
     for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
-    ofstream estadisticas;
-    estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
-    escribe_json(
-        {   
-            {"tamaño_diccionario", diccionario.size()},
-            {"tamaño_texto", texto.size()},
-            // poner aquí todas las estadísticas, con su par nombre/valor
-            // ejemplo:
-            {
-                "total_comparaciones_busqueda_fracaso", 
-                valor_de_total_comparaciones_busqueda_fracaso
+        ofstream estadisticas;
+        estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
+        escribe_json(
+            {   
+                {"tamaño_diccionario", diccionario.size()},
+                {"tamaño_texto", texto.size()},
+                // poner aquí todas las estadísticas, con su par nombre/valor
+                // ejemplo:
+                {
+                    "total_comparaciones_busqueda_fracaso", 
+                    valor_de_total_comparaciones_busqueda_fracaso
+                }
             }
-        }
-        ,
+            ,
         estadisticas);
     #else
-    ofstream tiempo;
-    tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
-    tiempo << c.transcurrido();
-    tiempo.close();
+        ofstream tiempo;
+        tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
+        tiempo << c.transcurrido();
+        tiempo.close();
     #endif
 }

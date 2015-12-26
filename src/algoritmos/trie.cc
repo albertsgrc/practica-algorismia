@@ -9,34 +9,41 @@ using namespace std;
 int llamadas_a_creadora_nodo = 0;
 
 class trie {
+
 private:
-    // Siempre base potencia de 2
+
+    // El numero que representara cada nodo estara en base BASE
+    // Utilizamos siempre bases potencias de 2 para calcular el ultimo digito
+    // (modulo la base) y el resto de digitos (dividir por la base)
+    // rapidamente con una & bit a bit y un shift binario
+    // Hemos escogido base 16 (hexadecimal) porque es la que daba mejores
+    // resultados
     static const int BASE       = 16;
     static const int MASCARA    = BASE - 1;
     static const int LOG_BASE_2 = 4; 
 
     #if _STATS_
-    int llamadas_aux;
+        int llamadas_aux;
     #endif
 
     struct nodo {
         bool existe;
         nodo* hijos[BASE];
 
-        #if _STATS_
-        #endif
-
         nodo (bool exis) : existe(exis) {
+
             #if _STATS_
-            ++llamadas_a_creadora_nodo;
+                ++llamadas_a_creadora_nodo;
             #endif
+
             for (int i = 0; i < BASE; ++i) hijos[i] = NULL;
         }
     };
 
-    nodo* raiz_p; // Trie para los positivos
-    nodo* raiz_n; // Trie para los negativos
+    nodo* raiz_p; // Trie para los positivos, el 0 se guarda en este nodo
+    nodo* raiz_n; // Trie para los negativos, en este nodo solo se guardan hijos
 
+    // PRE: x != 0
     void insertar_imm(int x, nodo* &n) {
         #if _STATS_
         ++llamadas_recursivas_creacion;
@@ -58,7 +65,7 @@ private:
     // PRE: x != 0, n != NULL
     bool contiene_imm(int x, nodo* n) {
         #if _STATS_
-        ++llamadas_aux;
+            ++llamadas_aux;
         #endif
 
         int ult_dig = x & MASCARA;
@@ -70,10 +77,11 @@ private:
     }
 
 public:
+
     #if _STATS_
-    int llamadas_recursivas_creacion;
-    int llamadas_recursivas_busqueda_fracaso;
-    int llamadas_recursivas_busqueda_exito;
+        int llamadas_recursivas_creacion;
+        int llamadas_recursivas_busqueda_fracaso;
+        int llamadas_recursivas_busqueda_exito;
 
     // total_iteraciones = 
     // llamadas_recursivas = 
@@ -102,9 +110,10 @@ public:
     }
 
     inline bool contiene(int x) {
-        if (x == 0) return raiz_p != NULL and raiz_p->existe;
         
         #if _STATS_
+
+            if (x == 0) return raiz_p != NULL and raiz_p->existe;
             else {
                 llamadas_aux = 0;
                 bool encontrado;
@@ -113,11 +122,16 @@ public:
 
                 if (encontrado) llamadas_recursivas_busqueda_exito += llamadas_aux;
                 else llamadas_recursivas_busqueda_fracaso += llamadas_aux;
+
                 return encontrado;
             }
+
         #else
+
+            if (x == 0) return raiz_p != NULL and raiz_p->existe;
             else if (x > 0) return raiz_p != NULL and contiene_imm(x, raiz_p);
             else return raiz_n != NULL and contiene_imm(-x, raiz_n);
+        
         #endif
     }
 };
@@ -137,7 +151,7 @@ int main(int argc, char* argv[]) {
     VI diccionario, texto;
     lee_entrada(argv[1], argv[2], diccionario, texto);
 
-    vector<bool> resultado(texto.size());
+    VB resultado(texto.size());
 
     Cronometro<> c;
     c.iniciar();
@@ -147,35 +161,35 @@ int main(int argc, char* argv[]) {
     for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
-    ofstream estadisticas;
-    estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
-    escribe_json(
-        {   
-            {"tamaño_diccionario", diccionario.size()},
-            {"tamaño_texto", texto.size()},
-            {
-                "llamadas_recursivas_creacion",
-                diccionario_trie.llamadas_recursivas_creacion
-            },
-            {
-                "llamadas_recursivas_busqueda_fracaso",
-                diccionario_trie.llamadas_recursivas_busqueda_fracaso
-            },
-            {
-                "llamadas_recursivas_busqueda_exito",
-                diccionario_trie.llamadas_recursivas_busqueda_exito
-            },
-            {
-                "llamadas_a_creadora_nodo",
-                llamadas_a_creadora_nodo
+        ofstream estadisticas;
+        estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
+        escribe_json(
+            {   
+                {"tamaño_diccionario", diccionario.size()},
+                {"tamaño_texto", texto.size()},
+                {
+                    "llamadas_recursivas_creacion",
+                    diccionario_trie.llamadas_recursivas_creacion
+                },
+                {
+                    "llamadas_recursivas_busqueda_fracaso",
+                    diccionario_trie.llamadas_recursivas_busqueda_fracaso
+                },
+                {
+                    "llamadas_recursivas_busqueda_exito",
+                    diccionario_trie.llamadas_recursivas_busqueda_exito
+                },
+                {
+                    "llamadas_a_creadora_nodo",
+                    llamadas_a_creadora_nodo
+                }
             }
-        }
-        ,
+            ,
         estadisticas);
     #else
-    ofstream tiempo;
-    tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
-    tiempo << c.transcurrido();
-    tiempo.close();
+        ofstream tiempo;
+        tiempo.open(argc > 3 ? argv[3] : "tiempo.out");
+        tiempo << c.transcurrido();
+        tiempo.close();
     #endif
 }
