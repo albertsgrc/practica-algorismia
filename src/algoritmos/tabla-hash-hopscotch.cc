@@ -202,13 +202,13 @@ class hash_hopscotch {
 };
 
 
-hash_hopscotch diccionario_hash;
+hash_hopscotch diccionario_hash_hopscotch;
 
 void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
-    diccionario_hash = hash_hopscotch(diccionario);
+    diccionario_hash_hopscotch = hash_hopscotch(diccionario);
 
     for (int i = 0; i < texto.size(); ++i) 
-        resultado[i] = diccionario_hash.contiene(texto[i]);
+        resultado[i] = diccionario_hash_hopscotch.contiene(texto[i]);
 }
 
 int main(int argc, char* argv[]) {
@@ -235,27 +235,27 @@ int main(int argc, char* argv[]) {
                 {"tamano_texto", texto.size()},
                 {
                     "total_comparaciones_busqueda_fracaso", 
-                    diccionario_hash.total_comparaciones_busqueda_fracaso
+                    diccionario_hash_hopscotch.total_comparaciones_busqueda_fracaso
                 },
                 {
                     "total_comparaciones_busqueda_exito", 
-                    diccionario_hash.total_comparaciones_busqueda_exito
+                    diccionario_hash_hopscotch.total_comparaciones_busqueda_exito
                 },
                 {
                     "total_comparaciones_creacion", 
-                    diccionario_hash.total_comparaciones_creacion
+                    diccionario_hash_hopscotch.total_comparaciones_creacion
                 },
                 {
                     "total_saltos_creacion",
-                    diccionario_hash.total_saltos_creacion
+                    diccionario_hash_hopscotch.total_saltos_creacion
                 },
                 {
                     "total_rehashes",
-                    diccionario_hash.total_rehashes
+                    diccionario_hash_hopscotch.total_rehashes
                 },
                 {
                     "tamano_tabla_hash",
-                    diccionario_hash.tamano_tabla
+                    diccionario_hash_hopscotch.tamano_tabla
                 }
             }
             ,

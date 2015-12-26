@@ -18,7 +18,7 @@ private:
     constexpr static const double LN_2 = 0.69314718055994530941;
     constexpr static const double OPT  = 9.0/13.0;
 
-    constexpr static const double PROB_FALSO_POSITIVO = 0.0000001;
+    constexpr static const double PROB_FALSO_POSITIVO = 0.000001;
 
     // Calcula la posicion de la llave k con una funcion de hash basada en 
     // murmurhash2, y usando la h como semilla 
@@ -59,6 +59,7 @@ public:
     #if _STATS_
 
     int numero_funciones;
+    int tamano_vector_bits;
     int hashes_busqueda_fracaso;
     int hashes_busqueda_exito;
 
@@ -90,6 +91,7 @@ public:
         for (int& funcion : funciones_hash) funcion = 2*rand() - 1;
         
         #if _STATS_
+            tamano_vector_bits = m;
             numero_funciones = funciones_hash.size();
             hashes_busqueda_exito = hashes_busqueda_fracaso = 0;
         #endif
@@ -161,6 +163,10 @@ int main(int argc, char* argv[]) {
                 {
                     "numero_funciones",
                     diccionario_bloom.numero_funciones
+                },
+                {
+                    "tamano_vector_bits",
+                    diccionario_bloom.tamano_vector_bits
                 },
                 {
                     "hashes_busqueda_exito",

@@ -183,27 +183,27 @@ int main(int argc, char* argv[]) {
                 {"tamano_texto", texto.size()},
                 {
                     "total_comparaciones_busqueda_fracaso", 
-                    diccionario_hash.total_comparaciones_busqueda_fracaso
+                    diccionario_hash_lista.total_comparaciones_busqueda_fracaso
                 },
                 {
                     "total_comparaciones_busqueda_exito", 
-                    diccionario_hash.total_comparaciones_busqueda_exito
+                    diccionario_hash_lista.total_comparaciones_busqueda_exito
                 },
                 {
                     "total_comparaciones_creacion", 
-                    diccionario_hash.total_comparaciones_creacion
+                    diccionario_hash_lista.total_comparaciones_creacion
                 },
                 {
                     "tamano_tabla_hash",
-                    diccionario_hash.tamano_tabla
+                    diccionario_hash_lista.tamano_tabla
                 },
                 {
                     "colisiones",
-                    diccionario_hash.colisiones()
+                    diccionario_hash_lista.colisiones()
                 },
                 {
                     "tamano_maximo_lista",
-                    diccionario_hash.tamano_maximo_lista()
+                    diccionario_hash_lista.tamano_maximo_lista()
                 }
             }
             ,
