@@ -17,7 +17,7 @@ algoritmos/tabla-hash-hopscotch-64: algoritmos/tabla-hash-hopscotch.cc
 	g++ $(FLAGS) $< -D_HOPSCOTCH_64_ -o $@
 
 algoritmos/tabla-hash-hopscotch-64-stats: algoritmos/tabla-hash-hopscotch.cc
-	g++ $(FLAGS) $< -D_HOPSCOTCH_64_ -D_STATS_ -o $@
+	g++ $(FLAGS) $< -D_STATS_ -D_HOPSCOTCH_64_ -o $@
 
 algoritmos/tabla-hash-hopscotch-32: algoritmos/tabla-hash-hopscotch.cc
 	g++ $(FLAGS) $< -o $@

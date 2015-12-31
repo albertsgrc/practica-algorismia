@@ -30,57 +30,6 @@ class hash_hopscotch {
 
         static const int H = 8*sizeof(T_HOPMAP);
 
-        inline void rehash() {
-
-            #if _STATS_
-                ++total_rehashes;
-            #endif
-
-            int nuevo_tamano = 2*T.size();
-            vector<Bucket> aux(nuevo_tamano);
-            mascara_modulo = nuevo_tamano - 1;
-
-            for (const Bucket& b : T) insertar(aux, b.clave);
-
-            T.swap(aux);
-        }
-
-        inline void insertar(vector<Bucket>& t, int k) {
-            int pos = posicion(k);
-
-            // Miramos las posiciones del vecindario de tamaño H de t[pos]
-            // hasta que encontremos una libre. En este caso no podemos
-            // dar saltos ya que hay que comprobar que el elemento no esté
-            // ya en la tabla
-            for (int i = 0; i < H; ++i) {
-
-                #if _STATS_
-                    ++total_saltos_creacion;
-                #endif
-
-                int indice_salto = (pos + i) & mascara_modulo;
-
-                if (not t[indice_salto].ocupado) { // Si no esta ocupado
-                    // Entonces lo ocupamos, actualizando el mapa de saltos
-                    t[indice_salto].clave = k;
-                    t[indice_salto].ocupado = true;
-                    t[pos].mapa_saltos |= (T_HOPMAP)(1) << ((T_HOPMAP) i);
-                    return;
-                }
-                else {
-
-                    #if _STATS_
-                        ++total_comparaciones_creacion;
-                    #endif
-
-                    // Si ya existe no hay que insertar
-                    if (t[indice_salto].clave == k) return; 
-                }
-            } 
-
-            rehash();
-            insertar(t, k);
-        }
 
         // builtin_ctz se traduce a una instruccion de lenguaje maquina
         // (si la maquina la soporta, lo cual es bastante comun)
@@ -109,8 +58,104 @@ class hash_hopscotch {
             return k & mascara_modulo;
         }
 
+        inline bool contiene_imm(int k, int pos, T_HOPMAP ms) {
+            #if _STATS_
+                int comparaciones = 0;
+            #endif
+
+            // Miramos si está en el vecindario de tamaño H de T[pos]                
+            while (ms > (T_HOPMAP)(0)) {
+                // saltar al siguiente indice que indique el mapa de saltos
+                // nunca nos saldremos del vecindario ya que ms > 0, 
+                // entonces siempre hay algun uno en el mapa, y cerosFinales < H
+                int indice_salto = (pos + cerosFinales(ms)) & mascara_modulo;
+
+                #if _STATS_
+                    ++comparaciones;
+                #endif
+
+                if (T[indice_salto].clave == k) {
+
+                    #if _STATS_
+                        if (en_creacion) total_comparaciones_creacion += comparaciones;
+                        else total_comparaciones_busqueda_exito += comparaciones;
+                    #endif
+
+                    return true;
+                }
+
+                // Eliminamos el bit a 1 de menos peso
+                ms &= ms - (T_HOPMAP)(1);
+            }
+
+            #if _STATS_
+                if (en_creacion) total_comparaciones_creacion += comparaciones;
+                else total_comparaciones_busqueda_fracaso += comparaciones;
+            #endif
+
+            return false;
+        }
+
+        inline void rehash() {
+            #if _STATS_
+                ++total_rehashes;
+            #endif
+
+            int nuevo_tamano = 2*T.size();
+            vector<Bucket> aux(nuevo_tamano);
+            mascara_modulo = nuevo_tamano - 1;
+
+            for (int i = 0; i < T.size(); ++i) {
+                if (T[i].ocupado) {
+                    int pos = posicion(T[i].clave);
+                    insertar_imm(aux, T[i].clave, pos, ~aux[pos].mapa_saltos);
+                }
+            }
+
+            T.swap(aux);
+        }
+
+        inline void insertar_imm(vector<Bucket>& t, int k, int pos, T_HOPMAP msi) {
+            do {
+                // Mientras exista un bit a 1
+                while (msi > (T_HOPMAP)(0)) {
+                    int salto = cerosFinales(msi);
+                    int indice_salto = (pos + salto) & mascara_modulo;
+                    if (not t[indice_salto].ocupado) {
+                        t[indice_salto].clave = k;
+                        t[indice_salto].ocupado = true;
+                        t[pos].mapa_saltos |= (T_HOPMAP)(1) << ((T_HOPMAP) salto);
+                        return;
+                    }
+                    else msi &= msi - (T_HOPMAP)(1);
+                }
+                
+                // Si no hay ningun bit a 1 no ocupado, todo el vecindario
+                // esta ocupado, rehasheamos
+                rehash();
+
+                pos = posicion(k);
+                msi = ~t[pos].mapa_saltos;
+            } while(true);
+        }
+
+        inline void insertar(int k) {
+            int pos = posicion(k);
+            T_HOPMAP msb = T[pos].mapa_saltos;
+
+            // Comprobamos que no esté ya
+            // Será rápido porque solo mirara bits a 1
+            if (contiene_imm(k, pos, msb)) return;
+
+            // El mapa de insercion es como el de busqueda negado,
+            // en este caso no buscamos un bit a 1 sino uno a 0
+            insertar_imm(T, k, pos, ~msb);
+        }
+
+
     public:
         #if _STATS_
+            bool en_creacion;
 
             int total_rehashes;
 
@@ -143,6 +188,7 @@ class hash_hopscotch {
         hash_hopscotch() {}
         hash_hopscotch(const VI& v) {
             #if _STATS_
+                en_creacion = true;
                 total_rehashes = total_saltos_creacion = 
                 total_comparaciones_creacion = 
                 total_comparaciones_busqueda_fracaso =
@@ -153,10 +199,11 @@ class hash_hopscotch {
             T = vector<Bucket>(tamano);
             mascara_modulo = tamano - 1;
 
-            for (int k : v) insertar(T, k);
+            for (int k : v) insertar(k);
 
             #if _STATS_
                 tamano_tabla = tamano;
+                en_creacion = false;
             #endif
 
         }
@@ -165,39 +212,7 @@ class hash_hopscotch {
             int pos = posicion(k);
             T_HOPMAP ms = T[pos].mapa_saltos;
 
-            #if _STATS_
-                int comparaciones = 0;
-            #endif
-
-            // Miramos si está en el vecindario de tamaño H de T[pos]                
-            while (ms > (T_HOPMAP)(0)) {
-                // saltar al siguiente indice que indique el mapa de saltos
-                // nunca nos saldremos del vecindario ya que ms > 0, 
-                // entonces siempre hay algun uno en el mapa, y cerosFinales < H
-                int indice_salto = (pos + cerosFinales(ms)) & mascara_modulo;
-
-                #if _STATS_
-                    ++comparaciones;
-                #endif
-
-                if (T[indice_salto].clave == k) {
-
-                    #if _STATS_
-                        total_comparaciones_busqueda_exito += comparaciones;
-                    #endif
-
-                    return true;
-                }
-
-                // Eliminamos el bit a 1 de menos peso
-                ms &= ms - (T_HOPMAP)(1);
-            }
-
-            #if _STATS_
-                total_comparaciones_busqueda_fracaso += comparaciones;
-            #endif
-
-            return false;
+            return contiene_imm(k, pos, ms);
         }
 };
 
@@ -264,7 +279,7 @@ int main(int argc, char* argv[]) {
                     diccionario_hash_hopscotch.total_rehashes
                 },
                 {
-                    "tamano_tabla_hash",
+                    "tamano_final_tabla_hash",
                     diccionario_hash_hopscotch.tamano_tabla
                 }
             }
