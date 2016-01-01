@@ -3,32 +3,27 @@
 #include <vector>
 #include <fstream>
 #include <forward_list>
+#include <cstdint>
 #include "io.hpp"
 #include "cronometro.hpp"
 using namespace std;
-
-#if _HOPSCOTCH_64_
-#define T_HOPMAP unsigned long
-#else
-#define T_HOPMAP unsigned int
-#endif
 
 class hash_hopscotch {
     
     private:
         struct Bucket {
             bool ocupado;
-            T_HOPMAP mapa_saltos;
+            unsigned long mapa_saltos;
             int clave;
 
-            Bucket() : ocupado(false), mapa_saltos((T_HOPMAP)(0)), clave(int()) {}
+            Bucket() : ocupado(false), mapa_saltos(0L), clave(int()) {}
         };
 
         vector<Bucket> T;
 
         int mascara_modulo;
 
-        static const int H = 8*sizeof(T_HOPMAP);
+        static const int H = 8*sizeof(unsigned long);
 
 
         // builtin_ctz se traduce a una instruccion de lenguaje maquina
@@ -37,12 +32,8 @@ class hash_hopscotch {
         // Ej.: 101101000 daria 3 por los 3 ultimos ceros
         // Esto es útil para saltar bits que esten a 0 del mapa de hopscotch
         // que hay en cada posicion de la tabla
-        inline int cerosFinales(T_HOPMAP x) {
-            #if _HOPSCOTCH_64_
-                return __builtin_ctzl(x);
-            #else
-                return __builtin_ctz(x);
-            #endif
+        inline int cerosFinales(unsigned long x) {
+            return __builtin_ctzl(x);
         }
 
         // Devuelve la siguiente potencia de 2 >= x
@@ -58,13 +49,13 @@ class hash_hopscotch {
             return k & mascara_modulo;
         }
 
-        inline bool contiene_imm(int k, int pos, T_HOPMAP ms) {
+        inline bool contiene_imm(int k, int pos, unsigned long ms) {
             #if _STATS_
                 int comparaciones = 0;
             #endif
 
             // Miramos si está en el vecindario de tamaño H de T[pos]                
-            while (ms > (T_HOPMAP)(0)) {
+            while (ms > 0L) {
                 // saltar al siguiente indice que indique el mapa de saltos
                 // nunca nos saldremos del vecindario ya que ms > 0, 
                 // entonces siempre hay algun uno en el mapa, y cerosFinales < H
@@ -85,7 +76,7 @@ class hash_hopscotch {
                 }
 
                 // Eliminamos el bit a 1 de menos peso
-                ms &= ms - (T_HOPMAP)(1);
+                ms &= ms - 1L;
             }
 
             #if _STATS_
@@ -115,19 +106,19 @@ class hash_hopscotch {
             T.swap(aux);
         }
 
-        inline void insertar_imm(vector<Bucket>& t, int k, int pos, T_HOPMAP msi) {
+        inline void insertar_imm(vector<Bucket>& t, int k, int pos, unsigned long msi) {
             do {
                 // Mientras exista un bit a 1
-                while (msi > (T_HOPMAP)(0)) {
+                while (msi > 0L) {
                     int salto = cerosFinales(msi);
                     int indice_salto = (pos + salto) & mascara_modulo;
                     if (not t[indice_salto].ocupado) {
                         t[indice_salto].clave = k;
                         t[indice_salto].ocupado = true;
-                        t[pos].mapa_saltos |= (T_HOPMAP)(1) << ((T_HOPMAP) salto);
+                        t[pos].mapa_saltos |= 1L << ((unsigned long) salto);
                         return;
                     }
-                    else msi &= msi - (T_HOPMAP)(1);
+                    else msi &= msi - 1L;
                 }
                 
                 // Si no hay ningun bit a 1 no ocupado, todo el vecindario
@@ -141,10 +132,10 @@ class hash_hopscotch {
 
         inline void insertar(int k) {
             int pos = posicion(k);
-            T_HOPMAP msb = T[pos].mapa_saltos;
+            unsigned long msb = T[pos].mapa_saltos;
 
             // Comprobamos que no esté ya
-            // Será rápido porque solo mirara bits a 1
+            // Será rápido porque solo mirará bits a 1
             if (contiene_imm(k, pos, msb)) return;
 
             // El mapa de insercion es como el de busqueda negado,
@@ -195,14 +186,14 @@ class hash_hopscotch {
                 total_comparaciones_busqueda_exito = 0;
             #endif
 
-            int tamano = siguiente_potencia_2(2*v.size());
+            int tamano = siguiente_potencia_2(1.75*v.size());
             T = vector<Bucket>(tamano);
             mascara_modulo = tamano - 1;
 
             for (int k : v) insertar(k);
 
             #if _STATS_
-                tamano_tabla = tamano;
+                tamano_tabla = T.size();
                 en_creacion = false;
             #endif
 
@@ -210,7 +201,7 @@ class hash_hopscotch {
 
         inline bool contiene(int k) {
             int pos = posicion(k);
-            T_HOPMAP ms = T[pos].mapa_saltos;
+            unsigned long ms = T[pos].mapa_saltos;
 
             return contiene_imm(k, pos, ms);
         }

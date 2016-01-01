@@ -20,7 +20,7 @@ private:
     // resultados
     static const int BASE       = 16;
     static const int MASCARA    = BASE - 1;
-    static const int LOG_BASE_2 = 4; 
+    static const int BITS_BASE  = 4; 
 
     #if _STATS_
         int llamadas_aux;
@@ -52,7 +52,7 @@ private:
         if (n == NULL) n = new nodo(false);
 
         int ult_dig = x & MASCARA;
-        int resto   = x >> LOG_BASE_2;
+        int resto   = x >> BITS_BASE;
         nodo* hijo  = n->hijos[ult_dig];
 
         if (resto == 0) {
@@ -69,11 +69,11 @@ private:
         #endif
 
         int ult_dig = x & MASCARA;
-        int resto   = x >> LOG_BASE_2;
+        int resto   = x >> BITS_BASE;
         nodo* hijo  = n->hijos[ult_dig]; 
 
-        return hijo != NULL and 
-              (resto == 0 ? hijo->existe : contiene_imm(resto, hijo));
+        if (hijo == NULL) return false;
+        else return resto == 0 ? hijo->existe : contiene_imm(resto, hijo);
     }
 
 public:

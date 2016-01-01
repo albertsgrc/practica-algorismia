@@ -105,7 +105,7 @@ public:
         total_comparaciones_creacion = 0;
         #endif
 
-        int tamano = siguiente_potencia_2(2*v.size());
+        int tamano = siguiente_potencia_2(1.75*v.size());
         T = vector<forward_list<int>>(tamano);
         mascara_modulo = tamano - 1;
 
