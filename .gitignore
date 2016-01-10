@@ -28,7 +28,9 @@
 *.out
 *.app
 src/algoritmos/*
+src/algoritmos-sin-stats/*
 !src/algoritmos/*.cc
+!src/algoritmos-sin-stats/*.cc
 generador-archivos
 algoritmo-seguro
 
