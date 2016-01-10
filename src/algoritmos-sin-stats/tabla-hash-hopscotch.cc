@@ -52,10 +52,6 @@ class hash_hopscotch {
         }
 
         inline bool contiene_imm(int k, int pos, unsigned long ms) {
-            #if _STATS_
-                int comparaciones = 0;
-            #endif
-
             // Miramos si está en el vecindario de tamaño H de T[pos]                
             while (ms > 0L) {
                 // saltar al siguiente indice que indique el mapa de saltos
@@ -63,37 +59,16 @@ class hash_hopscotch {
                 // entonces siempre hay algun uno en el mapa, y cerosFinales < H
                 int indice_salto = (pos + cerosFinales(ms)) & mascara_modulo;
 
-                #if _STATS_
-                    ++comparaciones;
-                #endif
-
-                if (T[indice_salto].clave == k) {
-
-                    #if _STATS_
-                        if (en_creacion) total_comparaciones_creacion += comparaciones;
-                        else total_comparaciones_busqueda_exito += comparaciones;
-                    #endif
-
-                    return true;
-                }
-
+                if (T[indice_salto].clave == k) return true;
+                
                 // Eliminamos el bit a 1 de menos peso
                 ms &= ms - 1L;
             }
-
-            #if _STATS_
-                if (en_creacion) total_comparaciones_creacion += comparaciones;
-                else total_comparaciones_busqueda_fracaso += comparaciones;
-            #endif
 
             return false;
         }
 
         inline void rehash() {
-            #if _STATS_
-                ++total_rehashes;
-            #endif
-
             int nuevo_tamano = 2*T.size();
             vector<Bucket> aux(nuevo_tamano);
             mascara_modulo = nuevo_tamano - 1;
@@ -147,58 +122,13 @@ class hash_hopscotch {
 
 
     public:
-        #if _STATS_
-            bool en_creacion;
-
-            int total_rehashes;
-
-            int total_saltos_creacion;
-            int total_comparaciones_creacion;
-
-            int total_comparaciones_busqueda_fracaso;
-            int total_comparaciones_busqueda_exito;
-
-            int tamano_tabla;
-
-            // llamadas a insertar = tamaño diccionario
-            // llamadas a contiene = tamaño texto 
-            // llamadas a hash = llamadas a insertar + llamadas a contiene
-
-            // avg comparaciones busqueda exito = total comparaciones busqueda exito / exitos
-            // avg comparaciones busqueda fracaso = total comparaciones busqueda fracaso / fracasos
-            // total comparaciones busqueda = total_comparaciones_busqueda_exito + total_comparaciones_busqueda_fracaso
-            // avg comparaciones busqueda = total comparaciones busqueda / tamano texto
-
-            // avg comparaciones creacion = total comparaciones creacion / tamano diccionario
-            // total comparaciones = total_comparaciones busqueda + total comparaciones creacion
-            // avg comparaciones = total comparaciones / (tamano texto + tamano diccionario)
-
-            // total iteraciones = total_saltos_creacion + total_comparaciones_busqueda
-            // total accesos memoria = total comparaciones (en este caso seguramente de la misma línea de cache)
-
-        #endif
-
         hash_hopscotch() {}
         hash_hopscotch(const VI& v) {
-            #if _STATS_
-                en_creacion = true;
-                total_rehashes = total_saltos_creacion = 
-                total_comparaciones_creacion = 
-                total_comparaciones_busqueda_fracaso =
-                total_comparaciones_busqueda_exito = 0;
-            #endif
-
-            int tamano = siguiente_potencia_2(1.75*v.size());
-            T = vector<Bucket>(tamano);
+            int tamano     = siguiente_potencia_2(1.75*v.size());
+            T              = vector<Bucket>(tamano);
             mascara_modulo = tamano - 1;
 
             for (int k : v) insertar(k);
-
-            #if _STATS_
-                tamano_tabla = T.size();
-                en_creacion = false;
-            #endif
-
         }
 
         inline bool contiene(int k) {
@@ -244,59 +174,15 @@ int main(int argc, char* argv[]) {
 
     for (bool b : resultado) cout << b << endl;
 
-    #if _STATS_
-        // Calculamos el uso maximo de memoria
-        rusage resusage;
-        getrusage(RUSAGE_SELF, &resusage);
-
-        ofstream estadisticas;
-        estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
-        escribe_json(
-            {
-                {"tamano_diccionario", diccionario.size()},
-                {"tamano_texto", texto.size()},
-                {
-                    "total_comparaciones_busqueda_fracaso", 
-                    diccionario_hash_hopscotch.total_comparaciones_busqueda_fracaso
-                },
-                {
-                    "total_comparaciones_busqueda_exito", 
-                    diccionario_hash_hopscotch.total_comparaciones_busqueda_exito
-                },
-                {
-                    "total_comparaciones_creacion", 
-                    diccionario_hash_hopscotch.total_comparaciones_creacion
-                },
-                {
-                    "total_saltos_creacion",
-                    diccionario_hash_hopscotch.total_saltos_creacion
-                },
-                {
-                    "total_rehashes",
-                    diccionario_hash_hopscotch.total_rehashes
-                },
-                {
-                    "tamano_final_tabla_hash",
-                    diccionario_hash_hopscotch.tamano_tabla
-                },
-                {
-                    "memoria_maxima_kb",
-                    resusage.ru_maxrss
-                }
-            }
-        , estadisticas);
-        estadisticas.close();
-    #else
-        ofstream tiempo;
-        tiempo.open(argc > 3 ? argv[3] : "tiempo.json");
-        escribe_json(
-            {
-                {"tiempo_total", total.transcurrido()},
-                {"tiempo_insercion", insercion.transcurrido()},
-                {"tiempo_busqueda", busqueda.transcurrido()}
-            }
-        ,
-        tiempo);
-        tiempo.close();
-    #endif
+    ofstream tiempo;
+    tiempo.open(argc > 3 ? argv[3] : "tiempo.json");
+    escribe_json(
+        {
+            {"tiempo_total", total.transcurrido()},
+            {"tiempo_insercion", insercion.transcurrido()},
+            {"tiempo_busqueda", busqueda.transcurrido()}
+        }
+    ,
+    tiempo);
+    tiempo.close();
 }

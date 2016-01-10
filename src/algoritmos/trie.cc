@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "io.hpp"
 #include "cronometro.hpp"
 using namespace std;
@@ -170,6 +172,10 @@ int main(int argc, char* argv[]) {
     for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
+        // Calculamos el uso maximo de memoria
+        rusage resusage;
+        getrusage(RUSAGE_SELF, &resusage);
+
         ofstream estadisticas;
         estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
         escribe_json(
@@ -191,6 +197,10 @@ int main(int argc, char* argv[]) {
                 {
                     "llamadas_a_creadora_nodo",
                     llamadas_a_creadora_nodo
+                },
+                {
+                    "memoria_maxima_kb",
+                    resusage.ru_maxrss
                 }
             }
         , estadisticas);

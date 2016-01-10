@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -18,10 +19,6 @@ void usage(string prog) {
 void error(const string& msg) {
     cerr << msg << endl;
     exit(1);
-}
-
-int randint() {
-    return rand()&1 ? rand() : -rand();
 }
 
 void parsea_parametros(char* i_n, char* i_proporcion, int& n, double& proporcion) {
@@ -49,7 +46,7 @@ void crea_diccionario(int n, vector<int>& diccionario) {
     arxiu1.open("archivos/arxiu1");
 
     for (int& x : diccionario) {
-        x = randint();
+        x = rand();
         arxiu1 << x << endl;
     }
 
@@ -61,14 +58,14 @@ void crea_texto(int n, double proporcion, const vector<int>& diccionario, int nu
     int repetidos = 2*n*proporcion;
     vector<int> texto(2*n);
 
-    for (int&x : texto) x = randint();
-
     for (int i = 0; i < repetidos; ++i) {
         int indice_arxiu1 = rand()%n;
-        // Aquest index no hauria de poder repetir-se
-        int indice_arxiu2 = rand()%(2*n);
-        texto[indice_arxiu2] = diccionario[indice_arxiu1];
+        texto[i] = diccionario[indice_arxiu1];
     }
+
+    for (int i = repetidos; i < texto.size(); ++i) texto[i] = rand();
+
+    random_shuffle(texto.begin(), texto.end());
 
     ofstream arxiu2;
     arxiu2.open("archivos/arxiu" + to_string(num));
@@ -84,7 +81,7 @@ int main(int argc, char* argv[]) {
     int n; double proporcion;
     parsea_parametros(argv[1], argv[2], n, proporcion);
 
-    srand(time(NULL));
+    srand(unsigned (time(0)));
     int r = system("mkdir -p archivos");
 
     if (r < 0) error("Se ha producido un error al crear la carpeta archivos");

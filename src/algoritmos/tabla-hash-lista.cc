@@ -3,6 +3,8 @@
 #include <vector>
 #include <fstream>
 #include <forward_list>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "io.hpp"
 #include "cronometro.hpp"
 using namespace std;
@@ -50,7 +52,11 @@ private:
     }
 
     // En este caso la funcion de hash es el entero mismo, ya que esto produce
-    // un hashing perfecto
+    // un hashing perfecto, y dado que los enteros son aleatorios estaran bien
+    // distribuidos en todos los bits (los bits bajos tambien), con lo que cojer
+    // modulo potencia de 2 no es una mala solucion. Si no pudiesemos asumir
+    // esa distribucion en los bits bajos habria que aplicar una funcion de hash
+    // al entero que distribuyese bien el espacio de valores en esos bits
     inline int posicion(int k) {
         return k & mascara_modulo;
     }
@@ -184,6 +190,10 @@ int main(int argc, char* argv[]) {
     for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
+        // Calculamos el uso maximo de memoria
+        rusage resusage;
+        getrusage(RUSAGE_SELF, &resusage);
+
         ofstream estadisticas;
         estadisticas.open(argc > 3 ? argv[3] : "estadisticas.json");
         escribe_json(
@@ -213,6 +223,10 @@ int main(int argc, char* argv[]) {
                 {
                     "tamano_maximo_lista",
                     diccionario_hash_lista.tamano_maximo_lista()
+                },
+                {
+                    "memoria_maxima_kb",
+                    resusage.ru_maxrss
                 }
             }
         , estadisticas);
