@@ -65,14 +65,9 @@ void crea_diccionario(int n, vector<int>& diccionario) {
 
 // TODO: Això s'ha d'arreglar
 void crea_texto(int n, double proporcion, double factor_texto_diccionario, const vector<int>& diccionario) {
-<<<<<<< HEAD
     int tamano_diccionario = factor_texto_diccionario*n;
     int repetidos = tamano_diccionario*proporcion;
     vector<int> texto(tamano_diccionario);
-=======
-    int repetidos = factor_texto_diccionario*n*proporcion;
-    vector<int> texto(factor_texto_diccionario*n);
->>>>>>> 3f12be9de797d9e2903dec12bc330bf1cd7ec960
 
     for (int i = 0; i < repetidos; ++i) {
         int indice_arxiu1 = rand()%n;

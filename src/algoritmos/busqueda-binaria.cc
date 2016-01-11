@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
     algoritmo(diccionario, texto, resultado);
     total.finalizar();
 
-    //for (bool b : resultado) cout << b << endl;
+    for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
         // Calculamos el uso maximo de memoria
