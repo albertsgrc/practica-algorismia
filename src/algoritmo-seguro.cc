@@ -16,19 +16,6 @@ void algoritmo(const VI& diccionario, const VI& texto, VB& resultado) {
     int cont = 0;
     for (int i = 0; i < resultado.size(); ++i) if (resultado[i]) ++cont;
     cerr << "proporcion " << double(cont)/resultado.size() << endl; 
-/*
-    int nonzerobuckets = 0;
-    int maxsize = 0;
-    for (int i = 0; i < diccionario_hash.size(); ++i) {
-        int cont = 0;
-        for (auto it = diccionario_hash.begin(i); it != diccionario_hash.end(i); ++it) {
-            ++cont;
-        }
-        maxsize = max(maxsize, cont);
-        nonzerobuckets += cont > 0;
-    }
-    cerr << diccionario.size() - nonzerobuckets << endl;
-    cerr << maxsize << endl;*/
 }
 
 int main(int argc, char* argv[]) {

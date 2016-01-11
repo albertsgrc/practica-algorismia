@@ -19,7 +19,7 @@ private:
     constexpr static const double LN_2 = 0.69314718055994530941;
     constexpr static const double OPT  = 9.0/13.0;
 
-    constexpr static const double PROB_FALSO_POSITIVO = 0.000001;
+    constexpr static const double PROB_FALSO_POSITIVO = 0.0001;
 
     // Calcula la posicion de la llave k con una funcion de hash basada en 
     // murmurhash2, y usando la h como semilla 
@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
     algoritmo(diccionario, texto, resultado);
     total.finalizar();
 
-    for (bool b : resultado) cout << b << endl;
+    //for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
         // Calculamos el uso maximo de memoria
