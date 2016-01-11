@@ -33,10 +33,10 @@ src/algoritmos-sin-stats/*
 !src/algoritmos-sin-stats/*.cc
 generador-archivos
 algoritmo-seguro
-
+src/tmp.txt
 
 # Arxius
-src/archivos/
+src/archivos/*
 
 # Sortides
 src/salidas/

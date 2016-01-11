@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Para que acabe si peta
+set -e
+
+ALGORITMO=$1
+
+PATH_ALGORITMO=./algoritmos/$ALGORITMO
+PATH_SALIDAS=./salidas/$ALGORITMO
+
+make
+
+# Comprobamos si el algoritmo existe 
+if [ ! -f $PATH_ALGORITMO ]; then
+    echo "El algoritmo no existe"
+    echo "Lista de algoritmos:"
+    for file in $(ls algoritmos | grep -v '\.cc' | grep -v '\-stats'); do
+        echo "* $file"
+    done
+    exit
+fi
+
+# Creamos path de output si no existe
+
+mkdir -p $PATH_SALIDAS
+
+# Ejecutamos el algoritmo para medir el tiempo
+$PATH_ALGORITMO archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/tiempo.json >/dev/null 2>&1
+
+# Ejecutamos el algoritmo para medir estadísticas
+$PATH_ALGORITMO-stats archivos/arxiu1 archivos/arxiu2 $PATH_SALIDAS/estadisticas.json >/dev/null 2>&1
+
+# Y escribimos los resultados
+echo "Resultado correcto"
+echo -n "Tiempos ejecución algoritmo en formato JSON y microsegundos: "
+cat $PATH_SALIDAS/tiempo.json
+echo ""
+echo ""
+echo "Estadísticas en formato JSON:"
+cat $PATH_SALIDAS/estadisticas.json
+echo ""
