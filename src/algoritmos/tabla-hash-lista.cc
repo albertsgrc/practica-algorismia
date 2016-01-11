@@ -14,11 +14,6 @@ class hash_lista {
 private:
     vector<forward_list<int>> T;
 
-    // mascara que se usa para hacer el módulo del hash con una and bit a bit.
-    // Eso implica que el tamaño de la tabla sea potencia de 2, lo cual 
-    // satisfacemos en la creadora.
-    int mascara_modulo; 
-
     // Retorna si el entero k esta en la lista l
     inline bool dentro(int k, forward_list<int> &l) {
 
@@ -58,19 +53,12 @@ private:
     // esa distribucion en los bits bajos habria que aplicar una funcion de hash
     // al entero que distribuyese bien el espacio de valores en esos bits
     inline int posicion(int k) {
-        return k & mascara_modulo;
+        return k%T.size();
     }
 
     inline void insertar(int k) {
         int pos = posicion(k);
         if (not dentro(k, T[pos])) T[pos].push_front(k);
-    }
-
-    // Devuelve la siguiente potencia de 2 >= x
-    inline int siguiente_potencia_2(int x) {
-        int p = 1;
-        while (p < x) p <<= 1;
-        return p;
     }
 
 public:
@@ -111,9 +99,8 @@ public:
         total_comparaciones_creacion = 0;
         #endif
 
-        int tamano = siguiente_potencia_2(1.75*v.size());
+        int tamano = 2*v.size();
         T = vector<forward_list<int>>(tamano);
-        mascara_modulo = tamano - 1;
 
         for (int k : v) insertar(k);
 
@@ -187,7 +174,7 @@ int main(int argc, char* argv[]) {
     algoritmo(diccionario, texto, resultado);
     total.finalizar();
 
-    for (bool b : resultado) cout << b << endl;
+    //for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
         // Calculamos el uso maximo de memoria

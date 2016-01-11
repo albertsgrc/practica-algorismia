@@ -1,2 +1,0 @@
-* Podem fer servir el sort() de la llibreria algorithm de c++?
-* El diccionari pot contenir repetits?

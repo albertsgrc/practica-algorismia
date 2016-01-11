@@ -13,14 +13,13 @@ class filtro_bloom {
 
 private:
 
-    int mascara_modulo;
     VB bits;
     VI funciones_hash; // i.e. semillas de la funcion
 
     constexpr static const double LN_2 = 0.69314718055994530941;
     constexpr static const double OPT  = 9.0/13.0;
 
-    constexpr static const double PROB_FALSO_POSITIVO = 0.000001;
+    constexpr static const double PROB_FALSO_POSITIVO = 0.0001;
 
     // Calcula la posicion de la llave k con una funcion de hash basada en 
     // murmurhash2, y usando la h como semilla 
@@ -40,19 +39,12 @@ private:
         h *= m;
         h ^= h >> 15;
 
-        return h & mascara_modulo;
+        return h%bits.size();
     }
 
     void insertar(int x) {
         for (int funcion : funciones_hash)
             bits[posicion(funcion, x)] = true;
-    }
-
-    // Devuelve la siguiente potencia de 2 >= x
-    inline int siguiente_potencia_2(int x) {
-        int p = 1;
-        while (p < x) p <<= 1;
-        return p;
     }
 
 public:
@@ -75,9 +67,6 @@ public:
         int n = v.size();
         // Calculamos el tamaño del vector de bits en funcion de la probabilidad
         int m = log(PROB_FALSO_POSITIVO)*n/(-OPT*LN_2);
-        m = siguiente_potencia_2(m);
-
-        mascara_modulo = m - 1;
 
         bits = VB(m);
 
@@ -161,7 +150,7 @@ int main(int argc, char* argv[]) {
     algoritmo(diccionario, texto, resultado);
     total.finalizar();
 
-    for (bool b : resultado) cout << b << endl;
+    //for (bool b : resultado) cout << b << endl;
 
     #if _STATS_
         // Calculamos el uso maximo de memoria
