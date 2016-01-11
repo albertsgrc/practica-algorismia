@@ -1,7 +1,0 @@
-Paràmetres:
-
-* Tamany del diccionari (n)
-* Tamany del text en funció del del diccionari (relació cerques/insercions)
-* Proporció de valors del text que estàn al diccionari (relacio cerces satisfactories/cerques fallides)
-
-Sempre farem 10 proves amb els 10 conjunts diferents per cada assaig
