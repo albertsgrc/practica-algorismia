@@ -23,8 +23,6 @@ class hash_hopscotch {
 
         vector<Bucket> T;
 
-        int mascara_modulo;
-
         static const int H = 8*sizeof(unsigned long);
 
 
@@ -38,17 +36,10 @@ class hash_hopscotch {
             return __builtin_ctzl(x);
         }
 
-        // Devuelve la siguiente potencia de 2 >= x
-        inline int siguiente_potencia_2(int x) {
-            int p = 1;
-            while (p < x) p <<= 1;
-            return p;
-        }
-
         // En este caso la funcion de hash es el entero mismo, ya que esto produce
         // un hashing perfecto
         inline int posicion(int k) {
-            return k & mascara_modulo;
+            return k%T.size();
         }
 
         inline bool contiene_imm(int k, int pos, unsigned long ms) {
@@ -61,7 +52,7 @@ class hash_hopscotch {
                 // saltar al siguiente indice que indique el mapa de saltos
                 // nunca nos saldremos del vecindario ya que ms > 0, 
                 // entonces siempre hay algun uno en el mapa, y cerosFinales < H
-                int indice_salto = (pos + cerosFinales(ms)) & mascara_modulo;
+                int indice_salto = (pos + cerosFinales(ms))%T.size();
 
                 #if _STATS_
                     ++comparaciones;
@@ -96,7 +87,6 @@ class hash_hopscotch {
 
             int nuevo_tamano = 2*T.size();
             vector<Bucket> aux(nuevo_tamano);
-            mascara_modulo = nuevo_tamano - 1;
 
             for (int i = 0; i < T.size(); ++i) {
                 if (T[i].ocupado) {
@@ -112,8 +102,11 @@ class hash_hopscotch {
             do {
                 // Mientras exista un bit a 1
                 while (msi > 0L) {
+                    #if _STATS_
+                        ++total_saltos_creacion;
+                    #endif
                     int salto = cerosFinales(msi);
-                    int indice_salto = (pos + salto) & mascara_modulo;
+                    int indice_salto = (pos + salto)%T.size();
                     if (not t[indice_salto].ocupado) {
                         t[indice_salto].clave = k;
                         t[indice_salto].ocupado = true;
@@ -188,9 +181,8 @@ class hash_hopscotch {
                 total_comparaciones_busqueda_exito = 0;
             #endif
 
-            int tamano = siguiente_potencia_2(1.75*v.size());
+            int tamano = 2*v.size();
             T = vector<Bucket>(tamano);
-            mascara_modulo = tamano - 1;
 
             for (int k : v) insertar(k);
 
